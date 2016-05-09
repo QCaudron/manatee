@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: manatee
+Version: 0.0.1
+Summary: manatee : a friendly wrapper around PySpark DataFrames
+Home-page: UNKNOWN
+Author: Quentin CAUDRON
+Author-email: quentincaudron@gmail.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN

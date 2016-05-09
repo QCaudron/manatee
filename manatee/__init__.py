@@ -1,0 +1,1 @@
+from .manatee import Manatee
