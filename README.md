@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/QCaudron/manatee.svg?branch=master)](https://travis-ci.org/QCaudron/new_scotch) [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/QCaudron/new_scotch/master/LICENSE) 
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/QCaudron/manatee/master/LICENSE) 
 
 manatee
 =======
