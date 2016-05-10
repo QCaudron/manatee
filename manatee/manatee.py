@@ -1,3 +1,10 @@
+"""
+.. module:: manatee
+
+.. moduleauthor:: Quentin
+
+"""
+
 import numpy as np
 import pandas as pd
 from datetime import date, datetime
@@ -26,12 +33,12 @@ class Manatee(DataFrame):
         """
 
         # Add an index to the data, and remove rows where the index is less than n
-        data = self.rdd.zipWithIndex().filter(lambda x: x[1] > n-1).map(lambda x: x[0])
+        rdd = self.rdd.zipWithIndex().filter(lambda x: x[1] > n-1).map(lambda x: x[0])
 
         if inplace:
-            self.__init__(data.toDF(schema=self.schema))
+            self.__init__(rdd.toDF(schema=self.schema))
         else:
-            return Manatee(data.toDF(schema=self.schema))
+            return Manatee(rdd.toDF(schema=self.schema))
 
 
     def unique(self, column=None):
@@ -90,6 +97,55 @@ class Manatee(DataFrame):
             self.__init__(self.join(column))
         else:
             return Manatee(self.join(column))
+
+
+    def dropna(self, how="any", na=None, subset=None, inplace=False):
+        """
+        Drops rows containing None, or any of the values in na, such as na=["", "NULL"].
+        If subset is None, drops rows containing NA anywhere. Otherwise, subset is a list of
+        column names, and NAs are dropped only if present in those columns. For how="any",
+        ... CONTINUE THIS DOCSTRING AND TURN ALL SPHINX-INTERPRETABLE
+        """
+
+        # Define the set of NA values
+        if na is None:
+            na = {None}
+        else:
+            na = set(na)
+
+        # If we're dropping rows containing at least one NA
+        if how == "any":
+
+            # If we're looking across the full dataframe
+            if not subset:
+                rdd = self.rdd.filter(lambda x: not (set(x) & na))
+
+            # If we're looking at specific columns
+            else:
+                rdd = self.rdd.filter(lambda x: not ({val for key, val in x.asDict().items()
+                                                      if key in subset} & na))
+
+        # Otherwise, we're only dropping rows if all entries are NA
+        elif how == "all":
+
+            # If strictly all subset column entries must be NA
+            if not subset:
+                rdd = self.rdd.filter(lambda x: not (set(x) <= na))
+
+            # If we're looking at specific columns
+            else:
+                rdd = self.rdd.filter(lambda x: not ({val for key, val in x.asDict().items()
+                                                      if key in subset} <= na))
+
+        if inplace:
+            self.__init__(rdd.toDF(schema=self.schema))
+        else:
+            return Manatee(rdd.toDF(schema=self.schema))
+
+
+
+
+
 
 
     # Dictionary for casting columns

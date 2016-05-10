@@ -1,3 +1,6 @@
+from pyspark.sql.context import SQLContext, HiveContext
+from pyspark.context import SparkContext
+
 def silence(context=None):
     """
     Removes INFO and WARN messages from the specified context, leaving only ERROR messages.
@@ -12,9 +15,9 @@ def silence(context=None):
 
     else:
         to_be_silenced = [var for var in globals().values()
-                          if (isinstance(var, pyspark.sql.context.HiveContext)
-                              or isinstance(var, pyspark.sql.context.SQLContext)
-                              or isinstance(var, pyspark.context.SparkContext))]
+                          if (isinstance(var, HiveContext)
+                              or isinstance(var, SQLContext)
+                              or isinstance(var, SparkContext))]
 
         for context in to_be_silenced:
             silence(context)

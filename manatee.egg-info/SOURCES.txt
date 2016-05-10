@@ -1,6 +1,0 @@
-manatee/__init__.py
-manatee/manatee.py
-manatee.egg-info/PKG-INFO
-manatee.egg-info/SOURCES.txt
-manatee.egg-info/dependency_links.txt
-manatee.egg-info/top_level.txt
