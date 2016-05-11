@@ -1,6 +1,3 @@
 .DS_Store
 manatee.egg-info
 *.pyc
-_build
-_static
-_templates
