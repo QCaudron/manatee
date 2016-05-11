@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>manatee &mdash; Manatee 0.0.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Manatee 0.0.2 documentation" href="index.html" />
+    <link rel="next" title="utils" href="utils.html" />
+    <link rel="prev" title="manatee" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-manatee.manatee">
+<span id="manatee"></span><h1>manatee<a class="headerlink" href="#module-manatee.manatee" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-manatee"></span><dl class="class">
+<dt id="manatee.manatee.Manatee">
+<em class="property">class </em><code class="descclassname">manatee.manatee.</code><code class="descname">Manatee</code><span class="sig-paren">(</span><em>df</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper class around the PySpark DataFrame object, providing some usability features
+closer to the pandas.DataFrame object.</p>
+<dl class="method">
+<dt id="manatee.manatee.Manatee.add_column">
+<code class="descname">add_column</code><span class="sig-paren">(</span><em>data</em>, <em>column=None</em>, <em>dtype=None</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.add_column"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.add_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a DF column, or a RDD, to the dataframe. If a DataFrame ( either PySpark or Manatee )
+is passed, then column and dtype can be None, as this information is already in the
+dataframe. If data is an RDD, column must be a str specifying the desired column name,
+and dtype should be a key as found in Manatee.typedict.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.cast">
+<code class="descname">cast</code><span class="sig-paren">(</span><em>column</em>, <em>dtype</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempts to cast a column to a given variable dtype. If it fails, this call &#8220;fails
+gracefully&#8221; : the DF is unchanged and Spark issues lots of text.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.drop_rows">
+<code class="descname">drop_rows</code><span class="sig-paren">(</span><em>n=1</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.drop_rows"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.drop_rows" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop the first n rows of the dataframe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.dropna">
+<code class="descname">dropna</code><span class="sig-paren">(</span><em>how='any'</em>, <em>na=None</em>, <em>subset=None</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.dropna"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.dropna" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drops rows containing None, or any of the values in na, such as na=[&#8220;&#8221;, &#8220;NULL&#8221;].
+If subset is None, drops rows containing NA anywhere. Otherwise, subset is a list of
+column names, and NAs are dropped only if present in those columns. For how=&#8221;any&#8221;,
+... CONTINUE THIS DOCSTRING AND TURN ALL SPHINX-INTERPRETABLE</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.unique">
+<code class="descname">unique</code><span class="sig-paren">(</span><em>column=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the unique values of a column in the dataframe, and the number of rows with that
+value. If no column is passed, this returns a dictionary, mapping column names to
+unique values in each column. This option might be slow.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">manatee</a></li>
+      <li>Next: <a href="utils.html" title="next chapter">utils</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/manatee.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Quentin CAUDRON.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/manatee.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
