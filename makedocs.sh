@@ -13,15 +13,11 @@ git push origin master
 
 # switch branches and pull the data we want
 git checkout gh-pages
-rm -rf .
+rm -rf *
 touch .nojekyll
-mv _build/html/* .
-rm -rf _build
-
-
 git checkout master docs/_build/html
-mv ./docs/_build/html/* ./
-rm -rf ./docs
+mv docs/_build/html/* .
+rm -rf docs
 git add -A
 git commit -m "publishing updated docs..."
 git push origin gh-pages
