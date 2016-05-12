@@ -106,8 +106,8 @@ class Manatee(DataFrame):
             The type of variable to cast to. Valid entries are the keys in the dictionary
             `Manatee.typedict`. They currently are : int, float, bool, str, date, datetime.
         inplace : bool
-            If False, this method returns a new Manatee dataframe.
-            If True, the current dataframe is mutated in-place, and this returns nothing.
+            If False, this method returns a new Manatee DataFrame.
+            If True, the current DataFrame is mutated in-place, and this method returns nothing.
         """
 
         # Cast the column to the desired dtype
@@ -126,26 +126,21 @@ class Manatee(DataFrame):
         """
         Adds a DF column, or a RDD, to the dataframe.
 
-        If a DataFrame ( either PySpark or Manatee ) is passed, then the arguments ``column``
-        and ``dtype`` can be None, as this information is already in the dataframe. If data
-        is an RDD, column must be a ``str`` specifying the desired column name, and dtype
-        should be a key as found in Manatee.typedict.
-
         Parameters
         ----------
         data : RDD, Pyspark DataFrame, or Manatee DataFrame.
         column : str or None.
-            If data is a RDD, this argument species the desired column name.
-            If data is a DataFrame, this should be None, as this information is extracted from
-            the schema.
-        dtype : type or None.
-            If data is a RDD, this should be a variable dtype, as found in the keys of
+            If `data` is a RDD, this argument species the desired column name.
+            If `data` is a DataFrame, this should be None, as this information is extracted
+            from the schema.
+        dtype : dtype or None.
+            If `data` is a RDD, this should be a variable dtype, as found in the keys of
             `Manatee.typedict`. Acceptable values are int, float, bool, str, date, or datetime.
             If data is a DataFrame, this should be None, as this information is extracted from
             the schema.
         inplace : bool
-            If False, this method returns a new Manatee dataframe.
-            If True, the current dataframe is mutated in-place, and this returns nothing.
+            If False, this method returns a new Manatee DataFrame.
+            If True, the current DataFrame is mutated in-place, and this method returns nothing.
         """
 
         # For dataframe data, just join() it
@@ -175,14 +170,14 @@ class Manatee(DataFrame):
             If "all", drops rows only if all of their elements are NA.
         na : list or None.
             If None, only empty elements are considered NA. Otherwise, any elements in this
-            list are also considered NA elements. You might want na = ["NULL"] to remove
-            any rows containing empty elements and the string "NULL".
+            list are also considered NA elements. You might want ``na = ["", "NULL"]`` to remove
+            any rows containing empty elements, empty strings, and the string "NULL".
         subset : list or None.
             If None, the entire DataFrame is considered when looking for NA values.
             Otherwise, only the columns whose names are given in this argument are considered.
         inplace : bool
-            If False, this method returns a new Manatee dataframe.
-            If True, the current dataframe is mutated in-place, and this returns nothing.
+            If False, this method returns a new Manatee DataFrame.
+            If True, the current DataFrame is mutated in-place, and this method returns nothing.
         """
 
         # Define the set of NA values
@@ -235,3 +230,6 @@ class Manatee(DataFrame):
         str: StringType,
         datetime: TimestampType
     }
+    """
+    A dictionary of valid dtypes, for use when casting. This is relevant for
+    `Manatee.cast` and `Manatee.add_column`.
