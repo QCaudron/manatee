@@ -12,8 +12,8 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   manatee.rst
-   utils.rst
+   api.rst
+   examples.rst
 
 
 
