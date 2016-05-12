@@ -233,3 +233,4 @@ class Manatee(DataFrame):
     """
     A dictionary of valid dtypes, for use when casting. This is relevant for
     `Manatee.cast` and `Manatee.add_column`.
+    """
