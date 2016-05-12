@@ -23,6 +23,12 @@ class Manatee(DataFrame):
     NAs, adding columns, casting columns to another variable type, or discovering
     unique values in a column. It aims to provide a more pandas-like experience to the
     PySpark DataFrame object.
+
+    Class Attributes
+    ----------------
+    typedict : dict
+        A dictionary of valid dtypes, for use when casting. This is relevant for
+        `Manatee.cast` and `Manatee.add_column`.
     """
 
     def __init__(self, df):
@@ -216,11 +222,6 @@ class Manatee(DataFrame):
             return Manatee(rdd.toDF(schema=self.schema))
 
 
-
-
-
-
-
     # Dictionary for casting columns
     typedict = {
         int: IntegerType,
@@ -230,7 +231,3 @@ class Manatee(DataFrame):
         str: StringType,
         datetime: TimestampType
     }
-    """
-    A dictionary of valid dtypes, for use when casting. This is relevant for
-    `Manatee.cast` and `Manatee.add_column`.
-    """
