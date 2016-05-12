@@ -11,7 +11,9 @@ needed user-friendliness by providing helper methods to the
 to pair the dataframe with a ``pyspark.mllib`` classification or
 regression model, neatly keeping everything in one place.
 
-This project is in pre-alpha.
+This project is in pre-alpha. Check out the documentation_.
 
 .. |GitHub license| image:: https://img.shields.io/badge/license-MIT-blue.svg
    :target: https://raw.githubusercontent.com/QCaudron/manatee/master/LICENSE
+
+.. _documentation: http://qcaudron.github.io/manatee
