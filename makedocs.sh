@@ -8,7 +8,7 @@ cd ..
 
 # commit and push
 git add -A
-git commit -m "building and pushing docs"
+git commit -m "Building docs."
 git push origin master
 
 # switch branches and pull the data we want
@@ -19,7 +19,7 @@ git checkout master docs/_build/html
 mv docs/_build/html/* .
 rm -rf docs
 git add -A
-git commit -m "publishing updated docs..."
+git commit -m "Publishing docs."
 git push origin gh-pages
 
 # switch back
