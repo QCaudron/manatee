@@ -1,17 +1,22 @@
 #!/usr/bin/env bash
 
-# build the docs
+# Update version number
+cd manatee
+python update_version.py
+cd ..
+
+# Build the docs
 cd docs
 make clean
 make html
 cd ..
 
-# commit and push
+# Xommit and push
 git add -A
 git commit -m "Building docs."
 git push origin master
 
-# switch branches and pull the data we want
+# Switch branches and pull the data we want
 git checkout gh-pages
 rm -rf *
 touch .nojekyll
@@ -22,7 +27,7 @@ git add -A
 git commit -m "Publishing docs."
 git push origin gh-pages
 
-# switch back
+# Switch back
 git checkout master
 
 

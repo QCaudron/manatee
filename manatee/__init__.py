@@ -5,7 +5,6 @@
 """
 
 from .manatee import Manatee
-from ._version import __version__
 
 __all__ = ["manatee", "utils"]
-
+__version__ = "0.0.12"
