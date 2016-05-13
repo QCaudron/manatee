@@ -28,7 +28,7 @@ class Manatee(DataFrame):
     ----------------
     typedict : dict
         A dictionary of valid dtypes, for use when casting. This is relevant for
-        `Manatee.cast` and `Manatee.add_column`.
+        `Manatee.quick_cast` and `Manatee.add_column`.
     """
 
     def __init__(self, df):
@@ -97,12 +97,15 @@ class Manatee(DataFrame):
         return {column: self.groupby(column).count().collect() for column in columns}
 
 
-    def cast(self, column, dtype, inplace=False):
+    def quick_cast(self, column, dtype, inplace=False):
         """
         Attempts to cast a column to a given variable dtype.
 
-        If it fails, this call "fails gracefully" : the DF is unchanged and Spark issues
-        lots of text. I'm not sure how to catch these errors yet...
+        Unlike the PySpark DataFrame `cast` method, `quick_cast` doesn't return a column
+        separately, but rather casts a column inside the DataFrame, keeping the column's
+        name but changing the dtype of its elements. If it fails, this call "fails gracefully" :
+        the DataFrame is unchanged and Spark issues lots of text.
+        I'm not sure how to catch these exceptions yet...
 
         Parameters
         ----------
@@ -175,7 +178,7 @@ class Manatee(DataFrame):
             If "any", drop rows that contain at least one NA element.
             If "all", drops rows only if all of their elements are NA.
         na : list or None.
-            If None, only empty elements are considered NA. Otherwise, any elements in this
+            If None, only empty elements are considered NA. Otherwise, all elements in this
             list are also considered NA elements. You might want ``na = ["", "NULL"]`` to remove
             any rows containing empty elements, empty strings, and the string "NULL".
         subset : list or None.
@@ -190,7 +193,7 @@ class Manatee(DataFrame):
         if na is None:
             na = {None}
         else:
-            na = set(na)
+            na = set(na).union({None})
 
         # If we're dropping rows containing at least one NA
         if how == "any":
@@ -220,6 +223,34 @@ class Manatee(DataFrame):
             self.__init__(rdd.toDF(schema=self.schema))
         else:
             return Manatee(rdd.toDF(schema=self.schema))
+
+
+    def toPySparkDF(self):
+        """
+        Returns a PySpark DataFrame object.
+
+        Returns
+        -------
+        df : pyspark.sql.dataframe.DataFrame
+        """
+        return DataFrame(self._jdf, self.sql_ctx)
+
+
+    def join(self, *args, **kwargs):
+        """
+        Overloads PySpark DataFrame's `join` method to return a Manatee DataFrame.
+        """
+
+        return Manatee(self.join(*args, **kwargs))
+
+
+    def select(self, *args, **kwargs):
+        """
+        Overloads PySpark DataFrame's `select` method to return a Manatee DataFrame.
+        """
+
+        return Manatee(self.select(*args, **kwargs))
+
 
 
     # Dictionary for casting columns
