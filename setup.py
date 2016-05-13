@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 
 opts = dict(name="manatee",
-            version="0.0.6",
+            version="0.0.7",
             maintainer="Quentin CAUDRON",
             maintainer_email="quentincaudron@gmail.com",
             description="manatee : a friendly wrapper around PySpark DataFrames",
@@ -15,13 +15,6 @@ opts = dict(name="manatee",
             author_email="quentincaudron@gmail.com",
             packages=["manatee"],
             )
-
-
-try:
-    with open("README.rst") as f:
-        opts["long_description"] = str(f.read()) 
-except:
-    opts["long_description"] = "" 
 
 
 if __name__ == '__main__':

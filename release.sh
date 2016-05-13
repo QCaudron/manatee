@@ -28,6 +28,6 @@ git checkout master
 
 
 # Added : release to PyPI
-python setup.py sdist bdist_wheel upload
+# python setup.py sdist bdist_wheel upload
 
 # from http://www.willmcginnis.com/2016/02/29/automating-documentation-workflow-with-sphinx-and-github-pages/
