@@ -5,8 +5,7 @@
 """
 
 from .manatee import Manatee
-import pkg_resources
-  
-__version__ = "0.0.8" 
+from ._version import __version__
+
 __all__ = ["manatee", "utils"]
 
