@@ -12,7 +12,7 @@ opts = dict(name="manatee",
             license="MIT",
             author="Quentin CAUDRON",
             author_email="Quentin CAUDRON",
-            version="0.0.3",
+            version="0.0.4",
             packages=["manatee"]
             )
 
