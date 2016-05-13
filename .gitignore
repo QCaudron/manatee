@@ -1,4 +1,6 @@
 .DS_Store
 manatee.egg-info
 __pycache__
+dist
+.pypirc
 *.pyc

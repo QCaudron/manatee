@@ -4,17 +4,19 @@ except ImportError:
     from distutils.core import setup
 
 opts = dict(name="manatee",
+            version="0.0.5",
             maintainer="Quentin CAUDRON",
             maintainer_email="quentincaudron@gmail.com",
             description="manatee : a friendly wrapper around PySpark DataFrames",
-            url="",
-            download_url="",
+            url="http://qcaudron.github.io/manatee",
+            download_url="https://github.com/qcaudron/manatee",
             license="MIT",
             author="Quentin CAUDRON",
-            author_email="Quentin CAUDRON",
-            version="0.0.4",
-            packages=["manatee"]
+            author_email="quentincaudron@gmail.com",
+            packages=["manatee"],
+            long_description=open("README.rst").read()
             )
+
 
 
 if __name__ == '__main__':
