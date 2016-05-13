@@ -14,7 +14,7 @@ opts = dict(name="manatee",
             author="Quentin CAUDRON",
             author_email="quentincaudron@gmail.com",
             packages=["manatee"],
-            long_description=open("README.rst").read()
+            long_description=open("../README.rst").read()
             )
 
 
