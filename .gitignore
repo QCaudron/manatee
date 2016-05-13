@@ -4,6 +4,7 @@ manatee.egg-info
 __pycache__
 dist
 .pypirc
+*.swp
 *.backup
 *.pyc
 update_version.py

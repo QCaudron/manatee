@@ -241,7 +241,7 @@ class Manatee(DataFrame):
         Overloads PySpark DataFrame's `join` method to return a Manatee DataFrame.
         """
 
-        return Manatee(self.join(*args, **kwargs))
+        return Manatee(super(self.__class__, self).join(*args, **kwargs))
 
 
     def select(self, *args, **kwargs):
@@ -249,7 +249,7 @@ class Manatee(DataFrame):
         Overloads PySpark DataFrame's `select` method to return a Manatee DataFrame.
         """
 
-        return Manatee(self.select(*args, **kwargs))
+        return Manatee(super(self.__class__, self).select(*args, **kwargs))
 
 
 
