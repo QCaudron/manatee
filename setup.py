@@ -14,9 +14,13 @@ opts = dict(name="manatee",
             author="Quentin CAUDRON",
             author_email="quentincaudron@gmail.com",
             packages=["manatee"],
-            long_description=open("../README.rst").read()
             )
 
+
+try:
+    opts["long_description"] = open("README.rst")
+except:
+    opts["long_description"] = "" 
 
 
 if __name__ == '__main__':
