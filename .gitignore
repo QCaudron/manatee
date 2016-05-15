@@ -6,4 +6,5 @@ dist
 .pypirc
 *.swp
 *.backup
+*_backup
 *.pyc

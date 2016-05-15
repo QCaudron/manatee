@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
 # Update version number
-cd manatee
 python update_version.py
-cd ..
 
 # Build the docs
 cd docs
