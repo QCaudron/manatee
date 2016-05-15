@@ -7,4 +7,3 @@ dist
 *.swp
 *.backup
 *.pyc
-update_version.py
