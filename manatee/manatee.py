@@ -243,12 +243,14 @@ class Manatee(DataFrame):
         na = {na}.union({None})
         length = float(self.count())
 
-        {}
+        nulls = self.map(lambda x: [1 if y in na else 0 for y in x]).toDF(df.schema)
         # TODO
+        pass
 
 
     def apply(self, f):
         # TODO
+        pass
 
 
 
