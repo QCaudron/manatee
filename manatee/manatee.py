@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from datetime import date, datetime
 
+from pyspark.rdd import RDD
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.types import (BooleanType, StringType, IntegerType, FloatType, Row,
                                DateType, TimestampType, StructType, StructField)
@@ -89,6 +90,7 @@ class Manatee(DataFrame):
             counts, in that column.
         """
 
+        # Format columns into a list of column names
         if columns is None:
             columns = self.columns
         elif isinstance(columns, str):
@@ -137,31 +139,38 @@ class Manatee(DataFrame):
 
         Parameters
         ----------
-        data : RDD, Pyspark DataFrame, or Manatee DataFrame.
+        data : scalar, RDD, Pyspark DataFrame, or Manatee DataFrame.
+            If scalar, it is broadcast to the correct length. This must fit in memory.
+            If RDD, you must specify `column` and `dtype`.
         column : str or None.
-            If `data` is a RDD, this argument species the desired column name.
-            If `data` is a DataFrame, this should be None, as this information is extracted
-            from the schema.
+            If `data` is a scalar or RDD, this argument species the desired column name.
+            If `data` is a DataFrame, this should be None, as this is extracted from the schema.
         dtype : dtype or None.
-            If `data` is a RDD, this should be a variable dtype, as found in the keys of
-            `Manatee.typedict`. Acceptable values are int, float, bool, str, date, or datetime.
-            If data is a DataFrame, this should be None, as this information is extracted from
-            the schema.
+            If `data` is a scalar or RDD, this should be a variable dtype, as found in the keys
+            of `Manatee.typedict`. Acceptable values are int, float, bool, str, date, or datetime.
+            If data is a DataFrame, this should be None, as this is extracted from the schema.
         inplace : bool
             If False, this method returns a new Manatee DataFrame.
             If True, the current DataFrame is mutated in-place, and this method returns nothing.
         """
 
-        # For dataframe data, just join() it
-        if not isinstance(data, pyspark.rdd.RDD):
-            self.__init(self.join(data))
+        # If it's not a type of dataframe, it's either a scalar or RDD
+        if not isinstance(data, Manatee) or not isinstance(data, DataFrame):
 
-        # For RDDs, cast to DF and then join()
-        schema = StructType([
-            StructField(column, self.typedict[astype]())
-        ])
-        column = data.toDF(schema=schema)
+            # Broadcast any scalars to RDD
+            if not isinstance(data, RDD):
+                astype = type(data)
+                data = sc.parallelize([data] * self.count())
 
+            # At this point, we have an RDD, so we can set the schema
+            schema = StructType([
+                StructField(column, self.typedict[astype]())
+            ])
+
+            # Map the RDD to a DataFrame and join
+            column = data.toDF(schema=schema)
+
+        # We now have a single-column DataFrame; join it to the existing DataFrame
         if inplace:
             self.__init__(self.join(column))
         else:
@@ -181,7 +190,7 @@ class Manatee(DataFrame):
             If None, only empty elements are considered NA. Otherwise, all elements in this
             list are also considered NA elements. You might want ``na = ["", "NULL"]`` to remove
             any rows containing empty elements, empty strings, and the string "NULL".
-        subset : list or None.
+        subset : str, list, or None.
             If None, the entire DataFrame is considered when looking for NA values.
             Otherwise, only the columns whose names are given in this argument are considered.
         inplace : bool
@@ -190,10 +199,11 @@ class Manatee(DataFrame):
         """
 
         # Define the set of NA values
-        if na is None:
-            na = {None}
-        else:
-            na = set(na).union({None})
+        na = {na}.union({None})
+
+        # Insert the subset into a list if it's passed as a string
+        if isinstance(subset, str):
+            subset = [subset]
 
         # If we're dropping rows containing at least one NA
         if how == "any":
@@ -225,6 +235,23 @@ class Manatee(DataFrame):
             return Manatee(rdd.toDF(schema=self.schema))
 
 
+    def na_rate(self, na=None, subset=None):
+        """
+        Returns the fraction of NA elements per column.
+        """
+
+        na = {na}.union({None})
+        length = float(self.count())
+
+        {}
+        # TODO
+
+
+    def apply(self, f):
+        # TODO
+
+
+
     def toPySparkDF(self):
         """
         Returns a PySpark DataFrame object.
@@ -239,6 +266,7 @@ class Manatee(DataFrame):
     def join(self, *args, **kwargs):
         """
         Overloads PySpark DataFrame's `join` method to return a Manatee DataFrame.
+        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
         """
 
         return Manatee(super(self.__class__, self).join(*args, **kwargs))
@@ -247,9 +275,20 @@ class Manatee(DataFrame):
     def select(self, *args, **kwargs):
         """
         Overloads PySpark DataFrame's `select` method to return a Manatee DataFrame.
+        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
         """
 
         return Manatee(super(self.__class__, self).select(*args, **kwargs))
+
+
+    def agg(self, *args, **kwargs):
+        """
+        Overloads PySpark DataFrame's `agg` method to return a Manatee DataFrame.
+        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
+        """
+
+        return Manatee(super(self.__class__, self).agg(*args, **kwargs))
+
 
 
 
@@ -258,6 +297,7 @@ class Manatee(DataFrame):
         int: IntegerType,
         bool: BooleanType,
         float: FloatType,
+        np.float64: FloatType,
         date: DateType,
         str: StringType,
         datetime: TimestampType
