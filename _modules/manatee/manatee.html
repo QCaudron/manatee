@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>manatee.manatee &mdash; Manatee 0.0.13 documentation</title>
+  <title>manatee.manatee &mdash; Manatee 0.0.14 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Manatee 0.0.13 documentation" href="../../index.html"/>
+    <link rel="top" title="Manatee 0.0.14 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.13
+                0.0.14
               </div>
             
           
@@ -140,6 +140,7 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
 
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="kn">import</span> <span class="n">RDD</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="kn">import</span> <span class="n">DataFrame</span>
 <span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BooleanType</span><span class="p">,</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">FloatType</span><span class="p">,</span> <span class="n">Row</span><span class="p">,</span>
                                <span class="n">DateType</span><span class="p">,</span> <span class="n">TimestampType</span><span class="p">,</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">)</span>
@@ -220,6 +221,7 @@
 <span class="sd">            counts, in that column.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="c1"># Format columns into a list of column names</span>
         <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -268,31 +270,38 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        data : RDD, Pyspark DataFrame, or Manatee DataFrame.</span>
+<span class="sd">        data : scalar, RDD, Pyspark DataFrame, or Manatee DataFrame.</span>
+<span class="sd">            If scalar, it is broadcast to the correct length. This must fit in memory.</span>
+<span class="sd">            If RDD, you must specify `column` and `dtype`.</span>
 <span class="sd">        column : str or None.</span>
-<span class="sd">            If `data` is a RDD, this argument species the desired column name.</span>
-<span class="sd">            If `data` is a DataFrame, this should be None, as this information is extracted</span>
-<span class="sd">            from the schema.</span>
+<span class="sd">            If `data` is a scalar or RDD, this argument species the desired column name.</span>
+<span class="sd">            If `data` is a DataFrame, this should be None, as this is extracted from the schema.</span>
 <span class="sd">        dtype : dtype or None.</span>
-<span class="sd">            If `data` is a RDD, this should be a variable dtype, as found in the keys of</span>
-<span class="sd">            `Manatee.typedict`. Acceptable values are int, float, bool, str, date, or datetime.</span>
-<span class="sd">            If data is a DataFrame, this should be None, as this information is extracted from</span>
-<span class="sd">            the schema.</span>
+<span class="sd">            If `data` is a scalar or RDD, this should be a variable dtype, as found in the keys</span>
+<span class="sd">            of `Manatee.typedict`. Acceptable values are int, float, bool, str, date, or datetime.</span>
+<span class="sd">            If data is a DataFrame, this should be None, as this is extracted from the schema.</span>
 <span class="sd">        inplace : bool</span>
 <span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
 <span class="sd">            If True, the current DataFrame is mutated in-place, and this method returns nothing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># For dataframe data, just join() it</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pyspark</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">RDD</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="c1"># If it&#39;s not a type of dataframe, it&#39;s either a scalar or RDD</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">Manatee</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
 
-        <span class="c1"># For RDDs, cast to DF and then join()</span>
-        <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
-            <span class="n">StructField</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">typedict</span><span class="p">[</span><span class="n">astype</span><span class="p">]())</span>
-        <span class="p">])</span>
-        <span class="n">column</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+            <span class="c1"># Broadcast any scalars to RDD</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+                <span class="n">astype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([</span><span class="n">data</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
 
+            <span class="c1"># At this point, we have an RDD, so we can set the schema</span>
+            <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+                <span class="n">StructField</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">typedict</span><span class="p">[</span><span class="n">astype</span><span class="p">]())</span>
+            <span class="p">])</span>
+
+            <span class="c1"># Map the RDD to a DataFrame and join</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">)</span>
+
+        <span class="c1"># We now have a single-column DataFrame; join it to the existing DataFrame</span>
         <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">column</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -312,7 +321,7 @@
 <span class="sd">            If None, only empty elements are considered NA. Otherwise, all elements in this</span>
 <span class="sd">            list are also considered NA elements. You might want ``na = [&quot;&quot;, &quot;NULL&quot;]`` to remove</span>
 <span class="sd">            any rows containing empty elements, empty strings, and the string &quot;NULL&quot;.</span>
-<span class="sd">        subset : list or None.</span>
+<span class="sd">        subset : str, list, or None.</span>
 <span class="sd">            If None, the entire DataFrame is considered when looking for NA values.</span>
 <span class="sd">            Otherwise, only the columns whose names are given in this argument are considered.</span>
 <span class="sd">        inplace : bool</span>
@@ -321,10 +330,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Define the set of NA values</span>
-        <span class="k">if</span> <span class="n">na</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">na</span> <span class="o">=</span> <span class="p">{</span><span class="bp">None</span><span class="p">}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">na</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">na</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="bp">None</span><span class="p">})</span>
+        <span class="n">na</span> <span class="o">=</span> <span class="p">{</span><span class="n">na</span><span class="p">}</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="bp">None</span><span class="p">})</span>
+
+        <span class="c1"># Insert the subset into a list if it&#39;s passed as a string</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="p">[</span><span class="n">subset</span><span class="p">]</span>
 
         <span class="c1"># If we&#39;re dropping rows containing at least one NA</span>
         <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;any&quot;</span><span class="p">:</span>
@@ -356,6 +366,25 @@
             <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
 
 </div>
+<div class="viewcode-block" id="Manatee.na_rate"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.na_rate">[docs]</a>    <span class="k">def</span> <span class="nf">na_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the fraction of NA elements per column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">na</span> <span class="o">=</span> <span class="p">{</span><span class="n">na</span><span class="p">}</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="bp">None</span><span class="p">})</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+
+        <span class="n">nulls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">na</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
+        <span class="c1"># TODO</span>
+        <span class="k">pass</span>
+
+</div>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="c1"># TODO</span>
+        <span class="k">pass</span>
+
+
+
 <div class="viewcode-block" id="Manatee.toPySparkDF"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.toPySparkDF">[docs]</a>    <span class="k">def</span> <span class="nf">toPySparkDF</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns a PySpark DataFrame object.</span>
@@ -370,6 +399,7 @@
 <div class="viewcode-block" id="Manatee.join"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.join">[docs]</a>    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloads PySpark DataFrame&#39;s `join` method to return a Manatee DataFrame.</span>
+<span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
@@ -378,9 +408,20 @@
 <div class="viewcode-block" id="Manatee.select"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloads PySpark DataFrame&#39;s `select` method to return a Manatee DataFrame.</span>
+<span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.agg"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.agg">[docs]</a>    <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overloads PySpark DataFrame&#39;s `agg` method to return a Manatee DataFrame.</span>
+<span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
 
 
 
@@ -389,6 +430,7 @@
         <span class="nb">int</span><span class="p">:</span> <span class="n">IntegerType</span><span class="p">,</span>
         <span class="nb">bool</span><span class="p">:</span> <span class="n">BooleanType</span><span class="p">,</span>
         <span class="nb">float</span><span class="p">:</span> <span class="n">FloatType</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span> <span class="n">FloatType</span><span class="p">,</span>
         <span class="n">date</span><span class="p">:</span> <span class="n">DateType</span><span class="p">,</span>
         <span class="nb">str</span><span class="p">:</span> <span class="n">StringType</span><span class="p">,</span>
         <span class="n">datetime</span><span class="p">:</span> <span class="n">TimestampType</span>
@@ -426,7 +468,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.0.13',
+            VERSION:'0.0.14',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
