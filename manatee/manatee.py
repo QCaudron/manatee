@@ -32,7 +32,7 @@ class Manatee(DataFrame):
         `Manatee.quick_cast` and `Manatee.add_column`.
     """
 
-    def __init__(self, df):
+    def __init__(self, df=None):
         """
         Initialise the Manatee dataframe.
 
@@ -40,6 +40,7 @@ class Manatee(DataFrame):
         ----------
         df : a PySpark or Manatee dataframe.
         """
+
         super(self.__class__, self).__init__(df._jdf, df.sql_ctx)
 
 
@@ -115,7 +116,7 @@ class Manatee(DataFrame):
             The name of the column whose elements are to be cast.
         dtype : type
             The type of variable to cast to. Valid entries are the keys in the dictionary
-            `Manatee.typedict`. They currently are : int, float, bool, str, date, datetime.
+            `Manatee.typedict`.
         inplace : bool
             If False, this method returns a new Manatee DataFrame.
             If True, the current DataFrame is mutated in-place, and this method returns nothing.
@@ -144,11 +145,11 @@ class Manatee(DataFrame):
             If RDD, you must specify `column` and `dtype`.
         column : str or None.
             If `data` is a scalar or RDD, this argument species the desired column name.
-            If `data` is a DataFrame, this should be None, as this is extracted from the schema.
+            If `data` is a DataFrame, this is ignored, as this is extracted from the schema.
         dtype : dtype or None.
             If `data` is a scalar or RDD, this should be a variable dtype, as found in the keys
-            of `Manatee.typedict`. Acceptable values are int, float, bool, str, date, or datetime.
-            If data is a DataFrame, this should be None, as this is extracted from the schema.
+            of `Manatee.typedict`.
+            If data is a DataFrame, this is ignored, as this is extracted from the schema.
         inplace : bool
             If False, this method returns a new Manatee DataFrame.
             If True, the current DataFrame is mutated in-place, and this method returns nothing.
@@ -162,13 +163,8 @@ class Manatee(DataFrame):
                 astype = type(data)
                 data = sc.parallelize([data] * self.count())
 
-            # At this point, we have an RDD, so we can set the schema
-            schema = StructType([
-                StructField(column, self.typedict[astype]())
-            ])
-
-            # Map the RDD to a DataFrame and join
-            column = data.toDF(schema=schema)
+            # At this point, we have an RDD. Generate a DataFrame and add it.
+            df = Manatee.from_rdd(data, dtype)
 
         # We now have a single-column DataFrame; join it to the existing DataFrame
         if inplace:
@@ -199,7 +195,10 @@ class Manatee(DataFrame):
         """
 
         # Define the set of NA values
-        na = {na}.union({None})
+        if na is None:
+            na = {na}
+        else:
+            na = set(na).union({None})
 
         # Insert the subset into a list if it's passed as a string
         if isinstance(subset, str):
@@ -235,12 +234,95 @@ class Manatee(DataFrame):
             return Manatee(rdd.toDF(schema=self.schema))
 
 
+    def from_rdd(self, rdd, name=None):
+        """
+        Create a Manatee DataFrame from an RDD.
+
+        This method returns a Manatee DataFrame from data in a resilient distributed dataset.
+
+        Parameters
+        ----------
+        rdd : pyspark.rdd.RDD
+            The RDD to be turned into a DataFrame. Elements of the RDD can either be
+            single non-container items ( like a float or str ), a tuple of such elements,
+            or a `pyspark.sql.types.Row` object.
+        name : str or list
+            The desired name(s) of the column(s), if the RDD's elements are not `Row` objects.
+        """
+
+        # Grab the first row in the RDD, to figure out dtypes.
+        first = rdd.first()
+
+        # For non-Row RDD entries, find the dtypes assuming they're consistent throughout
+        if not isinstance(first, Row):
+            if isinstance(first, tuple):  # multiple elements per RDD row
+                dtype = [type(i) for i in first]
+            else:
+                dtype = [type(first)]  # one element per RDD row
+
+            # Also generate some names if they aren't passed
+            if name is None:
+                name = ["col_from_rdd_{}".format(i) for i in range(len(first))]
+
+        # For Row RDD entries, map the first row to a dict to get dtypes and column names
+        else:
+            first = first.asDict()
+            dtype = [type(i) for i in first.values()]
+            name = [colname for i in first.keys()]
+
+        # Create schema
+        schema = StructType([
+            StructField(colname, self.typedict[coltype]())
+            for colname, coltype in zip(name, dtype)
+        ])
+
+        return Manatee(rdd.toDF(schema=schema))
+
+
+    def transpose(self, memory=False, inplace=True):
+        """
+
+        """
+
+        # For in-memory transpose, just go through pandas
+        if memory:
+            df = Manatee(df.sql_ctx.createDataFrame(df.toPandas().T))
+
+        # Otherwise, take the RDD row by row, turning them into columns
+        def rddTranspose(rdd):
+            rddT1 = rdd.zipWithIndex().flatMap(lambda (x,i): [(i,j,e) for (j,e) in enumerate(x)])
+            rddT2 = rddT1.map(lambda (i,j,e): (j, (i,e))).groupByKey().sortByKey()
+            rddT3 = rddT2.map(lambda (i, x): sorted(list(x), cmp=lambda (i1,e1),(i2,e2) : cmp(i1, i2)))
+            rddT4 = rddT3.map(lambda x: map(lambda (i, y): y , x))
+            return rddT4.map(lambda x: np.asarray(x))
+        # http://www.dotnetperls.com/lambda-python
+        #TODO
+
+
+    @property
+    def T(self):
+        """
+        Transpose the DataFrame's index and columns fully in-memory.
+
+        This calls ``df.transpose(memory=True, inplace=False)`` to quickly transpose the
+        RDD, assuming the whole thing can fit into memory. For a transpose that only loads
+        one row into memory at once, use ``Manatee.transpose()`` with ``memory=False``.
+        """
+
+        return self.transpose(memory=True, inplace=inplace)
+
+
     def na_rate(self, na=None, subset=None):
         """
         Returns the fraction of NA elements per column.
         """
 
-        na = {na}.union({None})
+        # Define the set of NA values
+        if na is None:
+            na = {na}
+        else:
+            na = set(na).union({None})
+
         length = float(self.count())
 
         nulls = self.map(lambda x: [1 if y in na else 0 for y in x]).toDF(df.schema)
@@ -299,7 +381,6 @@ class Manatee(DataFrame):
         int: IntegerType,
         bool: BooleanType,
         float: FloatType,
-        np.float64: FloatType,
         date: DateType,
         str: StringType,
         datetime: TimestampType

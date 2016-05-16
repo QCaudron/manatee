@@ -3,7 +3,7 @@ from pyspark.context import SparkContext
 
 def silence(context=None):
     """
-    Silences
+    Silences the PySpark log messages.
 
     Removes INFO and WARN messages from the specified context, leaving only ERROR messages.
     If no context is passed, this function looks through globals() to find any SparkContexts,
@@ -15,6 +15,7 @@ def silence(context=None):
         logger.LogManager.getLogger("org"). setLevel(logger.Level.ERROR)
         logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)
         logger.LogManager.getRootLogger().setLevel(logger.Level.ERROR)
+        print("Silenced {}.".format(context))
 
     else:
         to_be_silenced = [var for var in globals().values()
