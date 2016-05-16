@@ -175,7 +175,7 @@ class Manatee(DataFrame):
 
     def dropna(self, how="any", na=None, subset=None, inplace=False):
         """
-        Drops rows containing NA or any of the values in na, such as na=["", "NULL"].
+        Drops rows containing NA or any of the values in na, such as ``na=["", "NULL"]``.
 
         Parameters
         ----------

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>manatee.manatee &mdash; Manatee 0.0.14 documentation</title>
+  <title>manatee.manatee &mdash; Manatee 0.0.15 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Manatee 0.0.14 documentation" href="../../index.html"/>
+    <link rel="top" title="Manatee 0.0.15 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.14
+                0.0.15
               </div>
             
           
@@ -306,7 +306,7 @@
 </div>
 <div class="viewcode-block" id="Manatee.dropna"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.dropna">[docs]</a>    <span class="k">def</span> <span class="nf">dropna</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Drops rows containing NA or any of the values in na, such as na=[&quot;&quot;, &quot;NULL&quot;].</span>
+<span class="sd">        Drops rows containing NA or any of the values in na, such as ``na=[&quot;&quot;, &quot;NULL&quot;]``.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -481,7 +481,7 @@
         <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span>
 
 </div>
-<div class="viewcode-block" id="Manatee.join"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.join">[docs]</a>    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloads PySpark DataFrame&#39;s `join` method to return a Manatee DataFrame.</span>
 <span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
@@ -489,8 +489,8 @@
 
         <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
-</div>
-<div class="viewcode-block" id="Manatee.select"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.select">[docs]</a>    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloads PySpark DataFrame&#39;s `select` method to return a Manatee DataFrame.</span>
 <span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
@@ -498,8 +498,8 @@
 
         <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
-</div>
-<div class="viewcode-block" id="Manatee.agg"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.agg">[docs]</a>    <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Overloads PySpark DataFrame&#39;s `agg` method to return a Manatee DataFrame.</span>
 <span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
@@ -510,7 +510,7 @@
 
 
 
-    <span class="c1"># Dictionary for casting columns</span></div>
+    <span class="c1"># Dictionary for casting columns</span>
     <span class="n">typedict</span> <span class="o">=</span> <span class="p">{</span>
         <span class="nb">int</span><span class="p">:</span> <span class="n">IntegerType</span><span class="p">,</span>
         <span class="nb">bool</span><span class="p">:</span> <span class="n">BooleanType</span><span class="p">,</span>
@@ -552,7 +552,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.0.14',
+            VERSION:'0.0.15',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
