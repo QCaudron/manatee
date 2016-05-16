@@ -289,6 +289,7 @@ class Manatee(DataFrame):
             df = Manatee(df.sql_ctx.createDataFrame(df.toPandas().T))
 
         # Otherwise, take the RDD row by row, turning them into columns
+        """
         def rddTranspose(rdd):
             rddT1 = rdd.zipWithIndex().flatMap(lambda (x,i): [(i,j,e) for (j,e) in enumerate(x)])
             rddT2 = rddT1.map(lambda (i,j,e): (j, (i,e))).groupByKey().sortByKey()
@@ -296,6 +297,8 @@ class Manatee(DataFrame):
             rddT4 = rddT3.map(lambda x: map(lambda (i, y): y , x))
             return rddT4.map(lambda x: np.asarray(x))
         # http://www.dotnetperls.com/lambda-python
+        """
+        pass
         #TODO
 
 
