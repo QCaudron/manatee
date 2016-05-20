@@ -10,7 +10,7 @@ def silence(context=None):
     SQLContexts, and HiveContexts, and silences those.
     """
 
-    if context:
+    if context is not None:
         logger = context._jvm.org.apache.log4j
         logger.LogManager.getLogger("org"). setLevel(logger.Level.ERROR)
         logger.LogManager.getLogger("akka").setLevel(logger.Level.ERROR)

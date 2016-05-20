@@ -44,7 +44,7 @@ class Manatee(DataFrame):
         super(self.__class__, self).__init__(df._jdf, df.sql_ctx)
 
 
-    def drop_rows(self, n=1, inplace=False):
+    def drop_first(self, n=1, inplace=False):
         """
         Drop the first n rows of the dataframe.
 
@@ -59,6 +59,31 @@ class Manatee(DataFrame):
 
         # Add an index to the data, and remove rows where the index is less than n
         rdd = self.rdd.zipWithIndex().filter(lambda x: x[1] > n-1).map(lambda x: x[0])
+
+        if inplace:
+            self.__init__(rdd.toDF(schema=self.schema))
+        else:
+            return Manatee(rdd.toDF(schema=self.schema))
+
+
+    def drop_last(self, n=1, inplace=False):
+        """
+        Drop the last n rows of the dataframe.
+
+        Parameters
+        ----------
+        n : int
+            The number of rows to drop.
+        inplace : bool
+            If False, this method returns a new Manatee dataframe.
+            If True, the current dataframe is mutated in-place, and this returns nothing.
+        """
+
+        # Total rows in the dataframe
+        rows = self.count()
+
+        # Add an index to the data, and remove rows where the index is greater than rows - n
+        rdd = self.rdd.zipWithIndex().filter(lambda x: x[1] < rows-n).map(lambda x: x[0])
 
         if inplace:
             self.__init__(rdd.toDF(schema=self.schema))
@@ -105,9 +130,9 @@ class Manatee(DataFrame):
         Attempts to cast a column to a given variable dtype.
 
         Unlike the PySpark DataFrame `cast` method, `quick_cast` doesn't return a column
-        separately, but rather casts a column inside the DataFrame, keeping the column's
+        separately, but rather casts a column inside the dataframe, keeping the column's
         name but changing the dtype of its elements. If it fails, this call "fails gracefully" :
-        the DataFrame is unchanged and Spark issues lots of text.
+        the dataframe is unchanged and Spark issues lots of text.
         I'm not sure how to catch these exceptions yet...
 
         Parameters
@@ -119,7 +144,7 @@ class Manatee(DataFrame):
             `Manatee.typedict`.
         inplace : bool
             If False, this method returns a new Manatee DataFrame.
-            If True, the current DataFrame is mutated in-place, and this method returns nothing.
+            If True, the current dataframe is mutated in-place, and this method returns nothing.
         """
 
         # Cast the column to the desired dtype
@@ -145,11 +170,11 @@ class Manatee(DataFrame):
             If RDD, you must specify `column` and `dtype`.
         column : str or None.
             If `data` is a scalar or RDD, this argument species the desired column name.
-            If `data` is a DataFrame, this is ignored, as this is extracted from the schema.
+            If `data` is a dataframe, this is ignored, as this is extracted from the schema.
         dtype : dtype or None.
             If `data` is a scalar or RDD, this should be a variable dtype, as found in the keys
             of `Manatee.typedict`.
-            If data is a DataFrame, this is ignored, as this is extracted from the schema.
+            If data is a dataframe, this is ignored, as this is extracted from the schema.
         inplace : bool
             If False, this method returns a new Manatee DataFrame.
             If True, the current DataFrame is mutated in-place, and this method returns nothing.
@@ -162,6 +187,7 @@ class Manatee(DataFrame):
             if not isinstance(data, RDD):
                 astype = type(data)
                 data = sc.parallelize([data] * self.count())
+                # TODO : global name "sc" is not defined
 
             # At this point, we have an RDD. Generate a DataFrame and add it.
             df = Manatee.from_rdd(data, dtype)
@@ -187,11 +213,11 @@ class Manatee(DataFrame):
             list are also considered NA elements. You might want ``na = ["", "NULL"]`` to remove
             any rows containing empty elements, empty strings, and the string "NULL".
         subset : str, list, or None.
-            If None, the entire DataFrame is considered when looking for NA values.
+            If None, the entire dataframe is considered when looking for NA values.
             Otherwise, only the columns whose names are given in this argument are considered.
         inplace : bool
             If False, this method returns a new Manatee DataFrame.
-            If True, the current DataFrame is mutated in-place, and this method returns nothing.
+            If True, the current dataframe is mutated in-place, and this method returns nothing.
         """
 
         # Define the set of NA values
@@ -243,7 +269,7 @@ class Manatee(DataFrame):
         Parameters
         ----------
         rdd : pyspark.rdd.RDD
-            The RDD to be turned into a DataFrame. Elements of the RDD can either be
+            The RDD to be turned into a dataframe. Elements of the RDD can either be
             single non-container items ( like a float or str ), a tuple of such elements,
             or a `pyspark.sql.types.Row` object.
         name : str or list
@@ -305,7 +331,7 @@ class Manatee(DataFrame):
     @property
     def T(self):
         """
-        Transpose the DataFrame's index and columns fully in-memory.
+        Transpose the dataframe's index and columns fully in-memory.
 
         This calls ``df.transpose(memory=True, inplace=False)`` to quickly transpose the
         RDD, assuming the whole thing can fit into memory. For a transpose that only loads
@@ -313,6 +339,24 @@ class Manatee(DataFrame):
         """
 
         return self.transpose(memory=True, inplace=inplace)
+
+
+    def replace(self, na=None, subset=None, inplace=False):
+        """
+        Replaces a set of values by another value.
+
+        This overloads PySpark's `DataFrame.replace()` method to allow the replacement
+        value to be None. This is helpful if you have multiple types of NA, and wish to
+        consolidate them to None before such as empty
+        strings, strings of whitespace,"NULL", or "NA".
+
+        Parameters
+        ----------
+        value : int, long, float, string, list, or None
+            The value to use to replace
+        """
+        # TODO
+        pass
 
 
     def na_rate(self, na=None, subset=None):
@@ -350,31 +394,22 @@ class Manatee(DataFrame):
         return DataFrame(self._jdf, self.sql_ctx)
 
 
-    def join(self, *args, **kwargs):
-        """
-        Overloads PySpark DataFrame's `join` method to return a Manatee DataFrame.
-        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
-        """
+    # Function overloads
 
+    def join(self, *args, **kwargs):
         return Manatee(super(self.__class__, self).join(*args, **kwargs))
 
-
     def select(self, *args, **kwargs):
-        """
-        Overloads PySpark DataFrame's `select` method to return a Manatee DataFrame.
-        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
-        """
-
         return Manatee(super(self.__class__, self).select(*args, **kwargs))
 
+    def drop_duplicates(self, *args, **kwargs):
+        return Manatee(super(self.__class__, self).drop_duplicates(*args, **kwargs))
 
     def agg(self, *args, **kwargs):
-        """
-        Overloads PySpark DataFrame's `agg` method to return a Manatee DataFrame.
-        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame
-        """
-
         return Manatee(super(self.__class__, self).agg(*args, **kwargs))
+
+    def alias(self, *args, **kwargs):
+        return Manatee(super(self.__class__, self).alias(*args, **kwargs))
 
 
 

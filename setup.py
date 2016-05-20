@@ -6,7 +6,7 @@ except ImportError:
 import os
 
 opts = dict(name="manatee",
-            version="0.0.15",
+            version="0.0.16",
             maintainer="Quentin CAUDRON",
             maintainer_email="quentincaudron@gmail.com",
             description="manatee : a friendly wrapper around PySpark DataFrames",
