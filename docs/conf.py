@@ -17,6 +17,10 @@ import sys
 import os
 import shlex
 
+sys.path.insert(0, os.path.abspath('_ext'))
+
+
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -33,8 +37,14 @@ import shlex
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    'numpydoc'
+    'numpydoc',
+    "edit_on_github"
 ]
+
+
+# Edit on Github stuffs
+edit_on_github_project = "qcaudron/manatee"
+edit_on_github_branch = "master"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -176,7 +186,7 @@ html_static_path = ['_static']
 #html_split_index = False
 
 # If true, links to the reST sources are added to the pages.
-#html_show_sourcelink = True
+html_show_sourcelink = False
 
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 #html_show_sphinx = True

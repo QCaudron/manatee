@@ -186,8 +186,7 @@ class Manatee(DataFrame):
             # Broadcast any scalars to RDD
             if not isinstance(data, RDD):
                 astype = type(data)
-                data = sc.parallelize([data] * self.count())
-                # TODO : global name "sc" is not defined
+                data = df._sc.parallelize([data] * self.count())
 
             # At this point, we have an RDD. Generate a DataFrame and add it.
             df = Manatee.from_rdd(data, dtype)
