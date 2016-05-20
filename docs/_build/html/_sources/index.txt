@@ -25,10 +25,9 @@ This project was last updated on |date|.
 .. include:: thanks.rst
 
 
-.. Indices and tables
-.. ==================
 
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
+.. |date| date::
+
+
+
 
