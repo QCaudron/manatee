@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>manatee.manatee &mdash; Manatee 0.0.15 documentation</title>
+  <title>manatee.manatee &mdash; Manatee 0.0.16 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Manatee 0.0.15 documentation" href="../../index.html"/>
+    <link rel="top" title="Manatee 0.0.16 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.15
+                0.0.16
               </div>
             
           
@@ -84,6 +84,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
 </ul>
 
             
@@ -175,7 +176,7 @@
         <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">_jdf</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Manatee.drop_rows"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.drop_rows">[docs]</a>    <span class="k">def</span> <span class="nf">drop_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<div class="viewcode-block" id="Manatee.drop_first"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.drop_first">[docs]</a>    <span class="k">def</span> <span class="nf">drop_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Drop the first n rows of the dataframe.</span>
 
@@ -190,6 +191,31 @@
 
         <span class="c1"># Add an index to the data, and remove rows where the index is less than n</span>
         <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">zipWithIndex</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.drop_last"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.drop_last">[docs]</a>    <span class="k">def</span> <span class="nf">drop_last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drop the last n rows of the dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n : int</span>
+<span class="sd">            The number of rows to drop.</span>
+<span class="sd">        inplace : bool</span>
+<span class="sd">            If False, this method returns a new Manatee dataframe.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Total rows in the dataframe</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="c1"># Add an index to the data, and remove rows where the index is greater than rows - n</span>
+        <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">zipWithIndex</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">rows</span><span class="o">-</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
@@ -236,9 +262,9 @@
 <span class="sd">        Attempts to cast a column to a given variable dtype.</span>
 
 <span class="sd">        Unlike the PySpark DataFrame `cast` method, `quick_cast` doesn&#39;t return a column</span>
-<span class="sd">        separately, but rather casts a column inside the DataFrame, keeping the column&#39;s</span>
+<span class="sd">        separately, but rather casts a column inside the dataframe, keeping the column&#39;s</span>
 <span class="sd">        name but changing the dtype of its elements. If it fails, this call &quot;fails gracefully&quot; :</span>
-<span class="sd">        the DataFrame is unchanged and Spark issues lots of text.</span>
+<span class="sd">        the dataframe is unchanged and Spark issues lots of text.</span>
 <span class="sd">        I&#39;m not sure how to catch these exceptions yet...</span>
 
 <span class="sd">        Parameters</span>
@@ -250,7 +276,7 @@
 <span class="sd">            `Manatee.typedict`.</span>
 <span class="sd">        inplace : bool</span>
 <span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
-<span class="sd">            If True, the current DataFrame is mutated in-place, and this method returns nothing.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this method returns nothing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Cast the column to the desired dtype</span>
@@ -276,11 +302,11 @@
 <span class="sd">            If RDD, you must specify `column` and `dtype`.</span>
 <span class="sd">        column : str or None.</span>
 <span class="sd">            If `data` is a scalar or RDD, this argument species the desired column name.</span>
-<span class="sd">            If `data` is a DataFrame, this is ignored, as this is extracted from the schema.</span>
+<span class="sd">            If `data` is a dataframe, this is ignored, as this is extracted from the schema.</span>
 <span class="sd">        dtype : dtype or None.</span>
 <span class="sd">            If `data` is a scalar or RDD, this should be a variable dtype, as found in the keys</span>
 <span class="sd">            of `Manatee.typedict`.</span>
-<span class="sd">            If data is a DataFrame, this is ignored, as this is extracted from the schema.</span>
+<span class="sd">            If data is a dataframe, this is ignored, as this is extracted from the schema.</span>
 <span class="sd">        inplace : bool</span>
 <span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
 <span class="sd">            If True, the current DataFrame is mutated in-place, and this method returns nothing.</span>
@@ -293,6 +319,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
                 <span class="n">astype</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">parallelize</span><span class="p">([</span><span class="n">data</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+                <span class="c1"># TODO : global name &quot;sc&quot; is not defined</span>
 
             <span class="c1"># At this point, we have an RDD. Generate a DataFrame and add it.</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">Manatee</span><span class="o">.</span><span class="n">from_rdd</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
@@ -318,11 +345,11 @@
 <span class="sd">            list are also considered NA elements. You might want ``na = [&quot;&quot;, &quot;NULL&quot;]`` to remove</span>
 <span class="sd">            any rows containing empty elements, empty strings, and the string &quot;NULL&quot;.</span>
 <span class="sd">        subset : str, list, or None.</span>
-<span class="sd">            If None, the entire DataFrame is considered when looking for NA values.</span>
+<span class="sd">            If None, the entire dataframe is considered when looking for NA values.</span>
 <span class="sd">            Otherwise, only the columns whose names are given in this argument are considered.</span>
 <span class="sd">        inplace : bool</span>
 <span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
-<span class="sd">            If True, the current DataFrame is mutated in-place, and this method returns nothing.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this method returns nothing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Define the set of NA values</span>
@@ -374,7 +401,7 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        rdd : pyspark.rdd.RDD</span>
-<span class="sd">            The RDD to be turned into a DataFrame. Elements of the RDD can either be</span>
+<span class="sd">            The RDD to be turned into a dataframe. Elements of the RDD can either be</span>
 <span class="sd">            single non-container items ( like a float or str ), a tuple of such elements,</span>
 <span class="sd">            or a `pyspark.sql.types.Row` object.</span>
 <span class="sd">        name : str or list</span>
@@ -436,7 +463,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Transpose the DataFrame&#39;s index and columns fully in-memory.</span>
+<span class="sd">        Transpose the dataframe&#39;s index and columns fully in-memory.</span>
 
 <span class="sd">        This calls ``df.transpose(memory=True, inplace=False)`` to quickly transpose the</span>
 <span class="sd">        RDD, assuming the whole thing can fit into memory. For a transpose that only loads</span>
@@ -446,6 +473,24 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">memory</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="n">inplace</span><span class="p">)</span>
 
 
+<div class="viewcode-block" id="Manatee.replace"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.replace">[docs]</a>    <span class="k">def</span> <span class="nf">replace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replaces a set of values by another value.</span>
+
+<span class="sd">        This overloads PySpark&#39;s `DataFrame.replace()` method to allow the replacement</span>
+<span class="sd">        value to be None. This is helpful if you have multiple types of NA, and wish to</span>
+<span class="sd">        consolidate them to None before such as empty</span>
+<span class="sd">        strings, strings of whitespace,&quot;NULL&quot;, or &quot;NA&quot;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : int, long, float, string, list, or None</span>
+<span class="sd">            The value to use to replace</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO</span>
+        <span class="k">pass</span>
+
+</div>
 <div class="viewcode-block" id="Manatee.na_rate"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.na_rate">[docs]</a>    <span class="k">def</span> <span class="nf">na_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Returns the fraction of NA elements per column.</span>
@@ -480,32 +525,23 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span>
 
+
+    <span class="c1"># Function overloads</span>
 </div>
     <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Overloads PySpark DataFrame&#39;s `join` method to return a Manatee DataFrame.</span>
-<span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
-
     <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Overloads PySpark DataFrame&#39;s `select` method to return a Manatee DataFrame.</span>
-<span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
+    <span class="k">def</span> <span class="nf">drop_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Overloads PySpark DataFrame&#39;s `agg` method to return a Manatee DataFrame.</span>
-<span class="sd">        https://spark.apache.org/docs/latest/api/python/pyspark.sql.html#pyspark.sql.DataFrame</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
 
 
 
@@ -552,7 +588,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.0.15',
+            VERSION:'0.0.16',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

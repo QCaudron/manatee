@@ -15,11 +15,14 @@ Contents
    installation.rst
    api.rst
    examples.rst
+   faq.rst
 
 
 
+This project was last updated on |date|.
 
 
+.. include:: thanks.rst
 
 
 .. Indices and tables
