@@ -1,4 +1,5 @@
-phinx extension to add ReadTheDocs-style "Edit on GitHub" links to the
+"""
+Sphinx extension to add ReadTheDocs-style "Edit on GitHub" links to the
 sidebar.
 Loosely based on https://github.com/astropy/astropy/pull/347
 """

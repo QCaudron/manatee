@@ -1,0 +1,4 @@
+[flake8]
+max-line-length=100
+exclude=docs/conf.py, manatee/__init__.py
+ignore = E303

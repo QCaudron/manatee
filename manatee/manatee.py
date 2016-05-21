@@ -5,14 +5,13 @@
 
 """
 
-import numpy as np
-import pandas as pd
 from datetime import date, datetime
 
 from pyspark.rdd import RDD
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.types import (BooleanType, StringType, IntegerType, FloatType, Row,
-                               DateType, TimestampType, StructType, StructField)
+                               DateType, TimestampType, StructType, StructField,
+                               NullType)
 
 
 class Manatee(DataFrame):
@@ -58,7 +57,7 @@ class Manatee(DataFrame):
         """
 
         # Add an index to the data, and remove rows where the index is less than n
-        rdd = self.rdd.zipWithIndex().filter(lambda x: x[1] > n-1).map(lambda x: x[0])
+        rdd = self.rdd.zipWithIndex().filter(lambda x: x[1] > n - 1).map(lambda x: x[0])
 
         if inplace:
             self.__init__(rdd.toDF(schema=self.schema))
@@ -83,7 +82,7 @@ class Manatee(DataFrame):
         rows = self.count()
 
         # Add an index to the data, and remove rows where the index is greater than rows - n
-        rdd = self.rdd.zipWithIndex().filter(lambda x: x[1] < rows-n).map(lambda x: x[0])
+        rdd = self.rdd.zipWithIndex().filter(lambda x: x[1] < rows - n).map(lambda x: x[0])
 
         if inplace:
             self.__init__(rdd.toDF(schema=self.schema))
@@ -180,16 +179,18 @@ class Manatee(DataFrame):
             If True, the current DataFrame is mutated in-place, and this method returns nothing.
         """
 
+        # TODO : method broken, find errors and fix
+        raise NotImplementedError
+
         # If it's not a type of dataframe, it's either a scalar or RDD
-        if not isinstance(data, Manatee) or not isinstance(data, DataFrame):
+        if not isinstance(data, (Manatee, DataFrame)):
 
             # Broadcast any scalars to RDD
             if not isinstance(data, RDD):
-                astype = type(data)
-                data = df._sc.parallelize([data] * self.count())
+                data = self._sc.parallelize([data] * self.count())
 
             # At this point, we have an RDD. Generate a DataFrame and add it.
-            df = Manatee.from_rdd(data, dtype)
+            df = Manatee.from_rdd(data, self.typedict[dtype])
 
         # We now have a single-column DataFrame; join it to the existing DataFrame
         if inplace:
@@ -221,9 +222,11 @@ class Manatee(DataFrame):
 
         # Define the set of NA values
         if na is None:
-            na = {na}
-        else:
+            na = {None}
+        elif isinstance(na, (list, set)):
             na = set(na).union({None})
+        else:
+            na = {na, None}
 
         # Insert the subset into a list if it's passed as a string
         if isinstance(subset, str):
@@ -259,7 +262,8 @@ class Manatee(DataFrame):
             return Manatee(rdd.toDF(schema=self.schema))
 
 
-    def from_rdd(self, rdd, name=None):
+    @classmethod
+    def from_rdd(cls, rdd, name=None):
         """
         Create a Manatee DataFrame from an RDD.
 
@@ -301,17 +305,22 @@ class Manatee(DataFrame):
             for colname, coltype in zip(name, dtype)
         ])
 
-        return Manatee(rdd.toDF(schema=schema))
+        return cls(rdd.toDF(schema=schema))
 
 
     def transpose(self, memory=False, inplace=True):
         """
+        Performs a transpose of the underlying RDD.
 
+        This method is not yet fully implemented, it currently works in-memory only
+        by leveraging ``pandas.DataFrame.transpose()``.
         """
 
         # For in-memory transpose, just go through pandas
         if memory:
             df = Manatee(df.sql_ctx.createDataFrame(df.toPandas().T))
+        else:
+            raise NotImplementedError
 
         # Otherwise, take the RDD row by row, turning them into columns
         """
@@ -323,39 +332,70 @@ class Manatee(DataFrame):
             return rddT4.map(lambda x: np.asarray(x))
         # http://www.dotnetperls.com/lambda-python
         """
-        pass
-        #TODO
+        # TODO : finish this method
+
+        if inplace:
+            self.__init__(df)
+        else:
+            return Manatee(df)
 
 
     @property
     def T(self):
         """
-        Transpose the dataframe's index and columns fully in-memory.
+        Transposes the dataframe's index and columns in-memory.
 
         This calls ``df.transpose(memory=True, inplace=False)`` to quickly transpose the
         RDD, assuming the whole thing can fit into memory. For a transpose that only loads
         one row into memory at once, use ``Manatee.transpose()`` with ``memory=False``.
         """
 
-        return self.transpose(memory=True, inplace=inplace)
+        return self.transpose(memory=True, inplace=False)
 
 
-    def replace(self, na=None, subset=None, inplace=False):
+    def to_null(self, to_replace, subset=None, inplace=False):
         """
-        Replaces a set of values by another value.
+        Replaces a set of values with `None`.
 
-        This overloads PySpark's `DataFrame.replace()` method to allow the replacement
-        value to be None. This is helpful if you have multiple types of NA, and wish to
-        consolidate them to None before such as empty
-        strings, strings of whitespace,"NULL", or "NA".
+        This method replaces a set of values with `None`, which is helpful if your
+        dataframe has a number of different values that should be null, such as
+        empty strings, whitespace, or the string "NULL".
 
         Parameters
         ----------
-        value : int, long, float, string, list, or None
-            The value to use to replace
+        to_replace : scalar or list
+            The value, or list of values, to replace with `None`.
+        subset : str, list, or None.
+            If None, the entire dataframe is considered when looking for to_replace values.
+            Otherwise, only the columns whose names are given in this argument are considered.
+        inplace : bool
+            If False, this method returns a new Manatee DataFrame.
+            If True, the current dataframe is mutated in-place, and this method returns nothing.
         """
-        # TODO
-        pass
+
+        # Ensure subset is a list of columns
+        if isinstance(subset, str):
+            subset = [subset]
+        if subset is None:
+            subset = self.columns
+
+        # Replace a value if it's equal to, or contained in, to_replace
+        if isinstance(to_replace, str):
+            replace = udf(lambda x: None if x == to_replace else x)
+        else:
+            replace = udf(lambda x: None if x in to_replace else x)
+
+        # Initialise a new dataframe
+        df = Manatee(self)
+
+        # Replace all matching entries in the relevant columns with None
+        # TODO : use new .apply() ?!
+        raise NotImplementedError
+
+        if inplace:
+            self.__init__(df)
+        else:
+            return Manatee(df)
 
 
     def na_rate(self, na=None, subset=None):
@@ -373,12 +413,16 @@ class Manatee(DataFrame):
 
         nulls = self.map(lambda x: [1 if y in na else 0 for y in x]).toDF(df.schema)
         # TODO
-        pass
+
+        raise NotImplementedError
 
 
     def apply(self, f):
         # TODO
-        pass
+        for col in subset:
+            df = df.withColumn(col, replace(col))
+
+        raise NotImplementedError
 
 
 
@@ -398,19 +442,21 @@ class Manatee(DataFrame):
     def join(self, *args, **kwargs):
         return Manatee(super(self.__class__, self).join(*args, **kwargs))
 
+
     def select(self, *args, **kwargs):
         return Manatee(super(self.__class__, self).select(*args, **kwargs))
+
 
     def drop_duplicates(self, *args, **kwargs):
         return Manatee(super(self.__class__, self).drop_duplicates(*args, **kwargs))
 
+
     def agg(self, *args, **kwargs):
         return Manatee(super(self.__class__, self).agg(*args, **kwargs))
 
+
     def alias(self, *args, **kwargs):
         return Manatee(super(self.__class__, self).alias(*args, **kwargs))
-
-
 
 
     # Dictionary for casting columns
@@ -420,5 +466,6 @@ class Manatee(DataFrame):
         float: FloatType,
         date: DateType,
         str: StringType,
-        datetime: TimestampType
+        datetime: TimestampType,
+        None: NullType()
     }

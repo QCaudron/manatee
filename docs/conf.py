@@ -38,7 +38,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'numpydoc',
-    "edit_on_github"
+#    "edit_on_github"
 ]
 
 
