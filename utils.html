@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>utils &mdash; Manatee 0.0.17 documentation</title>
+  <title>utils &mdash; Manatee 0.0.18 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Manatee 0.0.17 documentation" href="index.html"/>
+    <link rel="top" title="Manatee 0.0.18 documentation" href="index.html"/>
         <link rel="up" title="API" href="api.html"/>
         <link rel="next" title="Examples" href="examples.html"/>
         <link rel="prev" title="manatee" href="manatee.html"/> 
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.0.17
+                0.0.18
               </div>
             
           
@@ -140,11 +140,9 @@
 <p>This module provides funtions that are not DataFrame-centric, but are helpful to have whilst using Spark clusters interactively.</p>
 <span class="target" id="module-manatee.utils"></span><dl class="function">
 <dt id="manatee.utils.silence">
-<code class="descclassname">manatee.utils.</code><code class="descname">silence</code><span class="sig-paren">(</span><em>context=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/utils.html#silence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.utils.silence" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">manatee.utils.</code><code class="descname">silence</code><span class="sig-paren">(</span><em>context</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/utils.html#silence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.utils.silence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Silences the PySpark log messages.</p>
-<p>Removes INFO and WARN messages from the specified context, leaving only ERROR messages.
-If no context is passed, this function looks through globals() to find any SparkContexts,
-SQLContexts, and HiveContexts, and silences those.</p>
+<p>Removes INFO and WARN messages from the specified context, leaving only ERROR messages.</p>
 </dd></dl>
 
 </div>
@@ -190,7 +188,7 @@ SQLContexts, and HiveContexts, and silences those.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.0.17',
+            VERSION:'0.0.18',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
