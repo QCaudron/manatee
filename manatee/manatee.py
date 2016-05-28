@@ -26,7 +26,7 @@ class Manatee(DataFrame):
 
     Class Attributes
     ----------------
-    typedict : dict
+    typedict : dict.
         A dictionary of valid dtypes, for use when casting. This is relevant for
         `Manatee.quick_cast` and `Manatee.add_column`.
     """
@@ -49,9 +49,9 @@ class Manatee(DataFrame):
 
         Parameters
         ----------
-        n : int
+        n : int.
             The number of rows to drop.
-        inplace : bool
+        inplace : bool.
             If False, this method returns a new Manatee dataframe.
             If True, the current dataframe is mutated in-place, and this returns nothing.
         """
@@ -71,9 +71,9 @@ class Manatee(DataFrame):
 
         Parameters
         ----------
-        n : int
+        n : int.
             The number of rows to drop.
-        inplace : bool
+        inplace : bool.
             If False, this method returns a new Manatee dataframe.
             If True, the current dataframe is mutated in-place, and this returns nothing.
         """
@@ -101,7 +101,7 @@ class Manatee(DataFrame):
 
         Parameters
         ----------
-        columns : str, list, or None
+        columns : str, list, or None.
             The names of columns in which to find unique values.
             If columns is a string, it is the name of the column in which to find unique values.
             If columns is a list, its elements are assumed to be column names.
@@ -110,7 +110,7 @@ class Manatee(DataFrame):
 
         Returns
         -------
-        unique_values : dict
+        unique_values : dict.
             A dictionary whose keys are column names, and values are the unique values, and their
             counts, in that column.
         """
@@ -136,12 +136,12 @@ class Manatee(DataFrame):
 
         Parameters
         ----------
-        column : str
+        column : str.
             The name of the column whose elements are to be cast.
-        dtype : type
+        dtype : type.
             The type of variable to cast to. Valid entries are the keys in the dictionary
             `Manatee.typedict`.
-        inplace : bool
+        inplace : bool.
             If False, this method returns a new Manatee DataFrame.
             If True, the current dataframe is mutated in-place, and this method returns nothing.
         """
@@ -174,7 +174,7 @@ class Manatee(DataFrame):
             If `data` is a scalar or RDD, this should be a variable dtype, as found in the keys
             of `Manatee.typedict`.
             If data is a dataframe, this is ignored, as this is extracted from the schema.
-        inplace : bool
+        inplace : bool.
             If False, this method returns a new Manatee DataFrame.
             If True, the current DataFrame is mutated in-place, and this method returns nothing.
         """
@@ -205,7 +205,7 @@ class Manatee(DataFrame):
 
         Parameters
         ----------
-        how : str
+        how : str.
             If "any", drop rows that contain at least one NA element.
             If "all", drops rows only if all of their elements are NA.
         na : list or None.
@@ -215,7 +215,7 @@ class Manatee(DataFrame):
         subset : str, list, or None.
             If None, the entire dataframe is considered when looking for NA values.
             Otherwise, only the columns whose names are given in this argument are considered.
-        inplace : bool
+        inplace : bool.
             If False, this method returns a new Manatee DataFrame.
             If True, the current dataframe is mutated in-place, and this method returns nothing.
         """
@@ -271,11 +271,11 @@ class Manatee(DataFrame):
 
         Parameters
         ----------
-        rdd : pyspark.rdd.RDD
+        rdd : pyspark.rdd.RDD.
             The RDD to be turned into a dataframe. Elements of the RDD can either be
             single non-container items ( like a float or str ), a tuple of such elements,
             or a `pyspark.sql.types.Row` object.
-        name : str or list
+        name : str or list.
             The desired name(s) of the column(s), if the RDD's elements are not `Row` objects.
         """
 
@@ -312,8 +312,18 @@ class Manatee(DataFrame):
         """
         Performs a transpose of the underlying RDD.
 
-        This method is not yet fully implemented, it currently works in-memory only
+        This method is not yet fully implemented; it currently works in-memory only
         by leveraging ``pandas.DataFrame.transpose()``.
+
+        Parameters
+        ----------
+        memory : bool.
+            If True, the transpose is done in-memory.
+            If False, the transpose is performed in a distributed fashion. At least
+            one row of the dataframe must fit into memory.
+        inplace : bool.
+            If False, this method returns a new Manatee dataframe.
+            If True, the current dataframe is mutated in-place, and this returns nothing.
         """
 
         # For in-memory transpose, just go through pandas
@@ -363,12 +373,12 @@ class Manatee(DataFrame):
 
         Parameters
         ----------
-        to_replace : scalar or list
+        to_replace : scalar or list.
             The value, or list of values, to replace with `None`.
         subset : str, list, or None.
             If None, the entire dataframe is considered when looking for to_replace values.
             Otherwise, only the columns whose names are given in this argument are considered.
-        inplace : bool
+        inplace : bool.
             If False, this method returns a new Manatee DataFrame.
             If True, the current dataframe is mutated in-place, and this method returns nothing.
         """
@@ -400,7 +410,7 @@ class Manatee(DataFrame):
 
     def na_rate(self, na=None, subset=None):
         """
-        Returns the fraction of NA elements per column.
+        Returns the fraction of NA elements per column. Not yet implemented.
         """
 
         # Define the set of NA values
@@ -432,7 +442,7 @@ class Manatee(DataFrame):
 
         Returns
         -------
-        df : pyspark.sql.dataframe.DataFrame
+        df : pyspark.sql.dataframe.DataFrame.
         """
         return DataFrame(self._jdf, self.sql_ctx)
 

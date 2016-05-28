@@ -182,7 +182,7 @@ If <cite>data</cite> is a dataframe, this is ignored, as this is extracted from 
 of <cite>Manatee.typedict</cite>.
 If data is a dataframe, this is ignored, as this is extracted from the schema.</p>
 </div></blockquote>
-<p><strong>inplace</strong> : bool</p>
+<p><strong>inplace</strong> : bool.</p>
 <blockquote class="last">
 <div><p>If False, this method returns a new Manatee DataFrame.
 If True, the current DataFrame is mutated in-place, and this method returns nothing.</p>
@@ -201,11 +201,11 @@ If True, the current DataFrame is mutated in-place, and this method returns noth
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int.</p>
 <blockquote>
 <div><p>The number of rows to drop.</p>
 </div></blockquote>
-<p><strong>inplace</strong> : bool</p>
+<p><strong>inplace</strong> : bool.</p>
 <blockquote class="last">
 <div><p>If False, this method returns a new Manatee dataframe.
 If True, the current dataframe is mutated in-place, and this returns nothing.</p>
@@ -224,11 +224,11 @@ If True, the current dataframe is mutated in-place, and this returns nothing.</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int.</p>
 <blockquote>
 <div><p>The number of rows to drop.</p>
 </div></blockquote>
-<p><strong>inplace</strong> : bool</p>
+<p><strong>inplace</strong> : bool.</p>
 <blockquote class="last">
 <div><p>If False, this method returns a new Manatee dataframe.
 If True, the current dataframe is mutated in-place, and this returns nothing.</p>
@@ -247,7 +247,7 @@ If True, the current dataframe is mutated in-place, and this returns nothing.</p
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>how</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>how</strong> : str.</p>
 <blockquote>
 <div><p>If &#8220;any&#8221;, drop rows that contain at least one NA element.
 If &#8220;all&#8221;, drops rows only if all of their elements are NA.</p>
@@ -263,7 +263,7 @@ any rows containing empty elements, empty strings, and the string &#8220;NULL&#8
 <div><p>If None, the entire dataframe is considered when looking for NA values.
 Otherwise, only the columns whose names are given in this argument are considered.</p>
 </div></blockquote>
-<p><strong>inplace</strong> : bool</p>
+<p><strong>inplace</strong> : bool.</p>
 <blockquote class="last">
 <div><p>If False, this method returns a new Manatee DataFrame.
 If True, the current dataframe is mutated in-place, and this method returns nothing.</p>
@@ -283,13 +283,13 @@ If True, the current dataframe is mutated in-place, and this method returns noth
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>rdd</strong> : pyspark.rdd.RDD</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>rdd</strong> : pyspark.rdd.RDD.</p>
 <blockquote>
 <div><p>The RDD to be turned into a dataframe. Elements of the RDD can either be
 single non-container items ( like a float or str ), a tuple of such elements,
 or a <cite>pyspark.sql.types.Row</cite> object.</p>
 </div></blockquote>
-<p><strong>name</strong> : str or list</p>
+<p><strong>name</strong> : str or list.</p>
 <blockquote class="last">
 <div><p>The desired name(s) of the column(s), if the RDD&#8217;s elements are not <cite>Row</cite> objects.</p>
 </div></blockquote>
@@ -302,7 +302,7 @@ or a <cite>pyspark.sql.types.Row</cite> object.</p>
 <dl class="method">
 <dt id="manatee.manatee.Manatee.na_rate">
 <code class="descname">na_rate</code><span class="sig-paren">(</span><em>na=None</em>, <em>subset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.na_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.na_rate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the fraction of NA elements per column.</p>
+<dd><p>Returns the fraction of NA elements per column. Not yet implemented.</p>
 </dd></dl>
 
 <dl class="method">
@@ -318,16 +318,16 @@ I&#8217;m not sure how to catch these exceptions yet...</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>column</strong> : str</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>column</strong> : str.</p>
 <blockquote>
 <div><p>The name of the column whose elements are to be cast.</p>
 </div></blockquote>
-<p><strong>dtype</strong> : type</p>
+<p><strong>dtype</strong> : type.</p>
 <blockquote>
 <div><p>The type of variable to cast to. Valid entries are the keys in the dictionary
 <cite>Manatee.typedict</cite>.</p>
 </div></blockquote>
-<p><strong>inplace</strong> : bool</p>
+<p><strong>inplace</strong> : bool.</p>
 <blockquote class="last">
 <div><p>If False, this method returns a new Manatee DataFrame.
 If True, the current dataframe is mutated in-place, and this method returns nothing.</p>
@@ -346,7 +346,7 @@ If True, the current dataframe is mutated in-place, and this method returns noth
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>df</strong> : pyspark.sql.dataframe.DataFrame</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>df</strong> : pyspark.sql.dataframe.DataFrame.</td>
 </tr>
 </tbody>
 </table>
@@ -363,7 +363,7 @@ empty strings, whitespace, or the string &#8220;NULL&#8221;.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>to_replace</strong> : scalar or list</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>to_replace</strong> : scalar or list.</p>
 <blockquote>
 <div><p>The value, or list of values, to replace with <cite>None</cite>.</p>
 </div></blockquote>
@@ -372,7 +372,7 @@ empty strings, whitespace, or the string &#8220;NULL&#8221;.</p>
 <div><p>If None, the entire dataframe is considered when looking for to_replace values.
 Otherwise, only the columns whose names are given in this argument are considered.</p>
 </div></blockquote>
-<p><strong>inplace</strong> : bool</p>
+<p><strong>inplace</strong> : bool.</p>
 <blockquote class="last">
 <div><p>If False, this method returns a new Manatee DataFrame.
 If True, the current dataframe is mutated in-place, and this method returns nothing.</p>
@@ -387,8 +387,27 @@ If True, the current dataframe is mutated in-place, and this method returns noth
 <dt id="manatee.manatee.Manatee.transpose">
 <code class="descname">transpose</code><span class="sig-paren">(</span><em>memory=False</em>, <em>inplace=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.transpose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.transpose" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs a transpose of the underlying RDD.</p>
-<p>This method is not yet fully implemented, it currently works in-memory only
+<p>This method is not yet fully implemented; it currently works in-memory only
 by leveraging <code class="docutils literal"><span class="pre">pandas.DataFrame.transpose()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>memory</strong> : bool.</p>
+<blockquote>
+<div><p>If True, the transpose is done in-memory.
+If False, the transpose is performed in a distributed fashion. At least
+one row of the dataframe must fit into memory.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee dataframe.
+If True, the current dataframe is mutated in-place, and this returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -403,7 +422,7 @@ This option might be slow.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>columns</strong> : str, list, or None</p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>columns</strong> : str, list, or None.</p>
 <blockquote>
 <div><p>The names of columns in which to find unique values.
 If columns is a string, it is the name of the column in which to find unique values.
@@ -413,7 +432,7 @@ on a per-column basis.</p>
 </div></blockquote>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>unique_values</strong> : dict</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>unique_values</strong> : dict.</p>
 <blockquote class="last">
 <div><p>A dictionary whose keys are column names, and values are the unique values, and their
 counts, in that column.</p>

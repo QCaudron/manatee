@@ -150,9 +150,9 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>context</strong> : SparkContext, SQLContext, or HiveContext</p>
 <blockquote>
 <div><p>For example, if <cite>sc</cite> is your SparkContext, calling <code class="docutils literal"><span class="pre">silence(sc)</span></code> will switch
-off INFO and WARN messages.</p>
+off INFO and WARN messages issued from this SparkContext.</p>
 </div></blockquote>
-<p><strong>warn</strong> : bool</p>
+<p><strong>warn</strong> : bool.</p>
 <blockquote class="last">
 <div><p>If True, the logger&#8217;s level is set to WARN rather than ERROR, so the context
 will continue to issue WARN messages as well as ERROR messages.
