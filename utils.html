@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>utils &mdash; Manatee 0.0.18 documentation</title>
+  <title>utils &mdash; Manatee 0.0.19 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Manatee 0.0.18 documentation" href="index.html"/>
+    <link rel="top" title="Manatee 0.0.19 documentation" href="index.html"/>
         <link rel="up" title="API" href="api.html"/>
         <link rel="next" title="Examples" href="examples.html"/>
         <link rel="prev" title="manatee" href="manatee.html"/> 
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.0.18
+                0.0.19
               </div>
             
           
@@ -140,17 +140,23 @@
 <p>This module provides funtions that are not DataFrame-centric, but are helpful to have whilst using Spark clusters interactively.</p>
 <span class="target" id="module-manatee.utils"></span><dl class="function">
 <dt id="manatee.utils.silence">
-<code class="descclassname">manatee.utils.</code><code class="descname">silence</code><span class="sig-paren">(</span><em>context</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/utils.html#silence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.utils.silence" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">manatee.utils.</code><code class="descname">silence</code><span class="sig-paren">(</span><em>context</em>, <em>warn=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/utils.html#silence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.utils.silence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Silences the PySpark log messages.</p>
-<p>Removes INFO and WARN messages from the specified context, leaving only ERROR messages.</p>
+<p>Removes INFO ( and optionally WARN ) messages from the specified context&#8217;s logger.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>context</strong> : SparkContext, SQLContext, or HiveContext</p>
-<blockquote class="last">
-<div><p>For example, if <cite>sc</cite> is your SparkContext, calling <cite>silence(sc)</cite> will switch
+<blockquote>
+<div><p>For example, if <cite>sc</cite> is your SparkContext, calling <code class="docutils literal"><span class="pre">silence(sc)</span></code> will switch
 off INFO and WARN messages.</p>
+</div></blockquote>
+<p><strong>warn</strong> : bool</p>
+<blockquote class="last">
+<div><p>If True, the logger&#8217;s level is set to WARN rather than ERROR, so the context
+will continue to issue WARN messages as well as ERROR messages.
+If False, only ERROR messages are issued.</p>
 </div></blockquote>
 </td>
 </tr>
@@ -201,7 +207,7 @@ off INFO and WARN messages.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.0.18',
+            VERSION:'0.0.19',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true

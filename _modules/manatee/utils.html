@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>manatee.utils &mdash; Manatee 0.0.18 documentation</title>
+  <title>manatee.utils &mdash; Manatee 0.0.19 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Manatee 0.0.18 documentation" href="../../index.html"/>
+    <link rel="top" title="Manatee 0.0.19 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.18
+                0.0.19
               </div>
             
           
@@ -130,23 +130,29 @@
            <div itemprop="articleBody">
             
   <h1>Source code for manatee.utils</h1><div class="highlight"><pre>
-<div class="viewcode-block" id="silence"><a class="viewcode-back" href="../../utils.html#manatee.utils.silence">[docs]</a><span></span><span class="k">def</span> <span class="nf">silence</span><span class="p">(</span><span class="n">context</span><span class="p">):</span>
+<div class="viewcode-block" id="silence"><a class="viewcode-back" href="../../utils.html#manatee.utils.silence">[docs]</a><span></span><span class="k">def</span> <span class="nf">silence</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Silences the PySpark log messages.</span>
 
-<span class="sd">    Removes INFO and WARN messages from the specified context, leaving only ERROR messages.</span>
+<span class="sd">    Removes INFO ( and optionally WARN ) messages from the specified context&#39;s logger.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    context : SparkContext, SQLContext, or HiveContext</span>
-<span class="sd">        For example, if `sc` is your SparkContext, calling `silence(sc)` will switch</span>
+<span class="sd">        For example, if `sc` is your SparkContext, calling ``silence(sc)`` will switch</span>
 <span class="sd">        off INFO and WARN messages.</span>
+<span class="sd">    warn : bool</span>
+<span class="sd">        If True, the logger&#39;s level is set to WARN rather than ERROR, so the context</span>
+<span class="sd">        will continue to issue WARN messages as well as ERROR messages.</span>
+<span class="sd">        If False, only ERROR messages are issued.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">logger</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">log4j</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">LogManager</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;org&quot;</span><span class="p">)</span><span class="o">.</span> <span class="n">setLevel</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">Level</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">LogManager</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;akka&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">Level</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">LogManager</span><span class="o">.</span><span class="n">getRootLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">Level</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span></div>
+    <span class="n">target_level</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">Level</span><span class="o">.</span><span class="n">WARN</span> <span class="k">if</span> <span class="n">warn</span> <span class="k">else</span> <span class="n">logger</span><span class="o">.</span><span class="n">Level</span><span class="o">.</span><span class="n">ERROR</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">LogManager</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;org&quot;</span><span class="p">)</span><span class="o">.</span> <span class="n">setLevel</span><span class="p">(</span><span class="n">target_level</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">LogManager</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;akka&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">target_level</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">LogManager</span><span class="o">.</span><span class="n">getRootLogger</span><span class="p">()</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">target_level</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
@@ -180,7 +186,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.0.18',
+            VERSION:'0.0.19',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
