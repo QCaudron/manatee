@@ -135,6 +135,12 @@
 <span class="sd">    Silences the PySpark log messages.</span>
 
 <span class="sd">    Removes INFO and WARN messages from the specified context, leaving only ERROR messages.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    context : SparkContext, SQLContext, or HiveContext</span>
+<span class="sd">        For example, if `sc` is your SparkContext, calling `silence(sc)` will switch</span>
+<span class="sd">        off INFO and WARN messages.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">logger</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">_jvm</span><span class="o">.</span><span class="n">org</span><span class="o">.</span><span class="n">apache</span><span class="o">.</span><span class="n">log4j</span>

@@ -143,6 +143,19 @@
 <code class="descclassname">manatee.utils.</code><code class="descname">silence</code><span class="sig-paren">(</span><em>context</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/utils.html#silence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.utils.silence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Silences the PySpark log messages.</p>
 <p>Removes INFO and WARN messages from the specified context, leaving only ERROR messages.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>context</strong> : SparkContext, SQLContext, or HiveContext</p>
+<blockquote class="last">
+<div><p>For example, if <cite>sc</cite> is your SparkContext, calling <cite>silence(sc)</cite> will switch
+off INFO and WARN messages.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
