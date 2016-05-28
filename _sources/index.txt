@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 
-Find me on `Github <http://github.com/qcaudron/manatee`_ .
+Find me on `Github <http://github.com/qcaudron/manatee>`_.
 
 
 .. include:: ../README.rst
