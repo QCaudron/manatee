@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 
 opts = dict(name="manatee",
-            version="0.0.18",
+            version="0.0.19",
             maintainer="Quentin CAUDRON",
             maintainer_email="quentincaudron@gmail.com",
             description="manatee : a friendly wrapper around PySpark DataFrames",
