@@ -5,6 +5,7 @@
 
 .. include:: ../README.rst
 
+Find me on `Github <http://github.com/qcaudron/manatee`_.
 
 Contents
 --------
