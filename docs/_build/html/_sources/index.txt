@@ -3,9 +3,12 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+
+Find me on `Github <http://github.com/qcaudron/manatee`_ .
+
+
 .. include:: ../README.rst
 
-Find me on `Github <http://github.com/qcaudron/manatee`_.
 
 Contents
 --------
