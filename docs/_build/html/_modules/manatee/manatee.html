@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>manatee.manatee &mdash; Manatee 0.0.19 documentation</title>
+  <title>manatee.manatee &mdash; Manatee 0.0.20 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
   
 
   
-    <link rel="top" title="Manatee 0.0.19 documentation" href="../../index.html"/>
+    <link rel="top" title="Manatee 0.0.20 documentation" href="../../index.html"/>
         <link rel="up" title="Module code" href="../index.html"/> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.19
+                0.0.20
               </div>
             
           
@@ -428,8 +428,8 @@
         <span class="c1"># For Row RDD entries, map the first row to a dict to get dtypes and column names</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">first</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span>
-            <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="n">colname</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="n">colname</span> <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
 
         <span class="c1"># Create schema</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
@@ -467,7 +467,7 @@
         <span class="c1"># Otherwise, take the RDD row by row, turning them into columns</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        def rddTranspose(rdd):</span>
-<span class="sd">            rddT1 = rdd.zipWithIndex().flatMap(lambda (x,i): [(i,j,e) for (j,e) in enumerate(x)])</span>
+<span class="sd">            rddT1 = self.rdd.zipWithIndex().flatMap(lambda (x,i): [(i,j,e) for (j,e) in enumerate(x)])</span>
 <span class="sd">            rddT2 = rddT1.map(lambda (i,j,e): (j, (i,e))).groupByKey().sortByKey()</span>
 <span class="sd">            rddT3 = rddT2.map(lambda (i, x): sorted(list(x), cmp=lambda (i1,e1),(i2,e2) : cmp(i1, i2)))</span>
 <span class="sd">            rddT4 = rddT3.map(lambda x: map(lambda (i, y): y , x))</span>
@@ -644,7 +644,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'0.0.19',
+            VERSION:'0.0.20',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true
