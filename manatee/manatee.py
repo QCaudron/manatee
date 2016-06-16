@@ -296,8 +296,8 @@ class Manatee(DataFrame):
         # For Row RDD entries, map the first row to a dict to get dtypes and column names
         else:
             first = first.asDict()
-            dtype = [type(i) for i in first.values()]
-            name = [colname for i in first.keys()]
+            dtype = [value for value in first.values()]
+            name = [colname for colname in first.keys()]
 
         # Create schema
         schema = StructType([
@@ -335,7 +335,7 @@ class Manatee(DataFrame):
         # Otherwise, take the RDD row by row, turning them into columns
         """
         def rddTranspose(rdd):
-            rddT1 = rdd.zipWithIndex().flatMap(lambda (x,i): [(i,j,e) for (j,e) in enumerate(x)])
+            rddT1 = self.rdd.zipWithIndex().flatMap(lambda (x,i): [(i,j,e) for (j,e) in enumerate(x)])
             rddT2 = rddT1.map(lambda (i,j,e): (j, (i,e))).groupByKey().sortByKey()
             rddT3 = rddT2.map(lambda (i, x): sorted(list(x), cmp=lambda (i1,e1),(i2,e2) : cmp(i1, i2)))
             rddT4 = rddT3.map(lambda x: map(lambda (i, y): y , x))
