@@ -428,12 +428,12 @@
         <span class="c1"># For Row RDD entries, map the first row to a dict to get dtypes and column names</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">first</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span>
-            <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
             <span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="n">colname</span> <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
 
         <span class="c1"># Create schema</span>
         <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
-            <span class="n">StructField</span><span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">typedict</span><span class="p">[</span><span class="n">coltype</span><span class="p">]())</span>
+            <span class="n">StructField</span><span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">typedict</span><span class="p">[</span><span class="n">coltype</span><span class="p">]())</span>
             <span class="k">for</span> <span class="n">colname</span><span class="p">,</span> <span class="n">coltype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
         <span class="p">])</span>
 
