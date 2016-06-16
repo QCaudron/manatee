@@ -296,12 +296,12 @@ class Manatee(DataFrame):
         # For Row RDD entries, map the first row to a dict to get dtypes and column names
         else:
             first = first.asDict()
-            dtype = [value for value in first.values()]
+            dtype = [type(value) for value in first.values()]
             name = [colname for colname in first.keys()]
 
         # Create schema
         schema = StructType([
-            StructField(colname, self.typedict[coltype]())
+            StructField(colname, cls.typedict[coltype]())
             for colname, coltype in zip(name, dtype)
         ])
 
