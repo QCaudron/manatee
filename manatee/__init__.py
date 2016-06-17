@@ -7,4 +7,4 @@
 from .manatee import Manatee
 
 __all__ = ["manatee", "utils"]
-__version__ = "0.0.20"
+__version__ = "0.0.21"

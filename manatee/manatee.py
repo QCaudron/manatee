@@ -11,7 +11,8 @@ from pyspark.rdd import RDD
 from pyspark.sql.dataframe import DataFrame
 from pyspark.sql.types import (BooleanType, StringType, IntegerType, FloatType, Row,
                                DateType, TimestampType, StructType, StructField,
-                               NullType)
+                               NullType, LongType)
+from pyspark.sql.functions import monotonically_increasing_id
 
 
 class Manatee(DataFrame):
@@ -158,45 +159,61 @@ class Manatee(DataFrame):
             return Manatee(data)
 
 
-    def add_column(self, data, column=None, dtype=None, inplace=False):
+    def concatenate(self, data, inplace=False):
         """
-        Adds a DF column, or a RDD, to the dataframe.
+        Concatenates a dataframe, a RDD, or a scalar column to the current dataframe.
 
         Parameters
         ----------
-        data : scalar, RDD, Pyspark DataFrame, or Manatee DataFrame.
-            If scalar, it is broadcast to the correct length. This must fit in memory.
-            If RDD, you must specify `column` and `dtype`.
-        column : str or None.
-            If `data` is a scalar or RDD, this argument species the desired column name.
-            If `data` is a dataframe, this is ignored, as this is extracted from the schema.
-        dtype : dtype or None.
-            If `data` is a scalar or RDD, this should be a variable dtype, as found in the keys
-            of `Manatee.typedict`.
-            If data is a dataframe, this is ignored, as this is extracted from the schema.
+        data : scalar, RDD, PySpark DataFrame, or Manatee DataFrame.
+            If dataframe, this glues the two dataframes together columnwise. They must have the
+            same length, and column names must be unique.
+            If RDD, it must be able to generate a Manatee DataFrame using `Manatee.from_rdd()`.
+            If scalar, `data` must be either a int, a float, or a str. The scalar will be
+            broadcast such that all elements in the new column have the value `data`.
         inplace : bool.
             If False, this method returns a new Manatee DataFrame.
             If True, the current DataFrame is mutated in-place, and this method returns nothing.
         """
 
-        # TODO : method broken, find errors and fix
-        raise NotImplementedError
+        # If we have a dataframe, we can easily grab the schema then extract the RDD
+        if isinstance(data, (Manatee, DataFrame)):
+            right_schema = StructType([StructField("Manatee_idx", LongType(), False)] +
+                                     data.schema.fields)
+            data = data.rdd
 
-        # If it's not a type of dataframe, it's either a scalar or RDD
-        if not isinstance(data, (Manatee, DataFrame)):
+        # Otherwise, we need to infer the schema
+        elif isinstance(data, RDD):
+            first = data.first().asDict()
+            dtype = [type(value) for value in first.values()]
+            name = [colname for colname in first.keys()]
 
-            # Broadcast any scalars to RDD
-            if not isinstance(data, RDD):
-                data = self._sc.parallelize([data] * self.count())
+            right_schema = StructType([StructField("Manatee_idx", LongType(), False)] +
+                [StructField(colname, cls.typedict[coltype]())
+                for colname, coltype in zip(name, dtype)])
 
-            # At this point, we have an RDD. Generate a DataFrame and add it.
-            df = Manatee.from_rdd(data, self.typedict[dtype])
+        # Otherwise, it's a scalar
+        elif isinstance(data, (str, float, int)):
+            #rdd = sc.parallelize([data] * self.count())
+            raise NotImplementedError
 
-        # We now have a single-column DataFrame; join it to the existing DataFrame
+        # Create new schema for the current dataframe
+        left_schema = StructType([StructField("Manatee_idx", LongType(), False)] +
+                                 self.schema.fields)
+
+        # Add indices, then cast to dataframes
+        left = self.rdd.zipWithIndex().map(lambda (row, idx):
+            {k: v for k, v in row.asDict().items() + [("Manatee_idx", idx)]}).toDF(left_schema)
+        right = data.zipWithIndex().map(lambda (row, idx):
+            {k: v for k, v in row.asDict().items() + [("Manatee_idx", idx)]}).toDF(right_schema)
+
+        # Join
+        df = left.join(right, "Manatee_idx").drop("Manatee_idx")
+
         if inplace:
-            self.__init__(self.join(column))
+            self.__init__(df)
         else:
-            return Manatee(self.join(column))
+            return Manatee(df)
 
 
     def dropna(self, how="any", na=None, subset=None, inplace=False):
@@ -435,6 +452,39 @@ class Manatee(DataFrame):
         raise NotImplementedError
 
 
+    def drop(self, columns, inplace=False):
+        """
+        Returns a new dataframe that drops the specified column.
+
+        This function extends PySpark's DataFrame.drop() by allowing `column` to be
+        a list or tuple. In this case, all columns in the list or tuple are dropped.
+        This function can also be run in-place.
+
+        Parameters
+        ----------
+        column : str, list, or tuple.
+            If str, drops the column named in `column`.
+            If list of str or tuple of str, drops all columns named in `column`.
+        inplace : bool.
+            If False, this method returns a new Manatee DataFrame.
+            If True, the current dataframe is mutated in-place, and this method returns nothing.
+        """
+
+        # If a string is passed, just drop that column
+        if isinstance(columns, str):
+            df = super(self.__class__, self).drop(columns)
+
+        # If a tuple or list is passed, drop them all
+        elif isinstance(columns, (list, tuple)):
+            df = self
+            for column in columns:
+                df = df.drop(column)
+
+        if inplace:
+            self.__init__(df)
+        else:
+            return Manatee(df)
+
 
     def toPySparkDF(self):
         """
@@ -467,6 +517,10 @@ class Manatee(DataFrame):
 
     def alias(self, *args, **kwargs):
         return Manatee(super(self.__class__, self).alias(*args, **kwargs))
+
+
+    def filter(self, *args, **kwargs):
+        return Manatee(super(self.__class__, self).filter(*args, **kwargs))
 
 
     # Dictionary for casting columns
