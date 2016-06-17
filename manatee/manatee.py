@@ -189,7 +189,7 @@ class Manatee(DataFrame):
             name = [colname for colname in first.keys()]
 
             right_schema = StructType([StructField("Manatee_idx", LongType(), False)] +
-                [StructField(colname, cls.typedict[coltype]())
+                [StructField(colname, self.typedict[coltype]())
                 for colname, coltype in zip(name, dtype)])
 
         # Otherwise, it's a scalar
@@ -497,6 +497,18 @@ class Manatee(DataFrame):
         return DataFrame(self._jdf, self.sql_ctx)
 
 
+    def map_concat(self, f):
+        """
+        Performs a map() followed by a concatenate() in-place.
+
+        Concatenates the RDD that results from a map() operation as a new column in the dataframe.
+        """
+
+        rdd = self.map(f)
+        self.concatenate(rdd, inplace=True)
+
+
+
     # Function overloads
 
     def join(self, *args, **kwargs):
@@ -512,6 +524,7 @@ class Manatee(DataFrame):
 
 
     def agg(self, *args, **kwargs):
+        # Should somehow overload groupby() too... TODO.
         return Manatee(super(self.__class__, self).agg(*args, **kwargs))
 
 
@@ -521,6 +534,14 @@ class Manatee(DataFrame):
 
     def filter(self, *args, **kwargs):
         return Manatee(super(self.__class__, self).filter(*args, **kwargs))
+
+
+    def sample(self, *args, **kwargs):
+        return Manatee(super(self.__class__, self).sample(*args, **kwargs))
+
+
+    def limit(self, *args, **kwargs):
+        return Manatee(super(self.__class__, self).limit(*args, **kwargs))
 
 
     # Dictionary for casting columns
