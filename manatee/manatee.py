@@ -202,10 +202,8 @@ class Manatee(DataFrame):
                                  self.schema.fields)
 
         # Add indices, then cast to dataframes
-        left = self.rdd.zipWithIndex().map(lambda (row, idx):
-            {k: v for k, v in row.asDict().items() + [("Manatee_idx", idx)]}).toDF(left_schema)
-        right = data.zipWithIndex().map(lambda (row, idx):
-            {k: v for k, v in row.asDict().items() + [("Manatee_idx", idx)]}).toDF(right_schema)
+        left = self.rdd.zipWithIndex().map(lambda (row, idx): {k: v for k, v in row.asDict().items() + [("Manatee_idx", idx)]}).toDF(left_schema)
+        right = data.zipWithIndex().map(lambda (row, idx): {k: v for k, v in row.asDict().items() + [("Manatee_idx", idx)]}).toDF(right_schema)
 
         # Join
         df = left.join(right, "Manatee_idx").drop("Manatee_idx")
