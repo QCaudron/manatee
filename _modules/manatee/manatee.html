@@ -1,0 +1,749 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>manatee.manatee &mdash; Manatee 0.0.22 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Manatee 0.0.22 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Manatee
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.22
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../faq.html">Frequently Asked Questions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Manatee</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>manatee.manatee</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for manatee.manatee</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: manatee</span>
+
+<span class="sd">.. moduleauthor:: Quentin</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
+
+<span class="kn">from</span> <span class="nn">pyspark.rdd</span> <span class="kn">import</span> <span class="n">RDD</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.dataframe</span> <span class="kn">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.types</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BooleanType</span><span class="p">,</span> <span class="n">StringType</span><span class="p">,</span> <span class="n">IntegerType</span><span class="p">,</span> <span class="n">FloatType</span><span class="p">,</span> <span class="n">Row</span><span class="p">,</span>
+                               <span class="n">DateType</span><span class="p">,</span> <span class="n">TimestampType</span><span class="p">,</span> <span class="n">StructType</span><span class="p">,</span> <span class="n">StructField</span><span class="p">,</span>
+                               <span class="n">NullType</span><span class="p">,</span> <span class="n">LongType</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">pyspark.sql.functions</span> <span class="kn">import</span> <span class="n">monotonically_increasing_id</span>
+
+
+<div class="viewcode-block" id="Manatee"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee">[docs]</a><span class="k">class</span> <span class="nc">Manatee</span><span class="p">(</span><span class="n">DataFrame</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper class around the PySpark DataFrame object, providing some usability features</span>
+<span class="sd">    closer to the pandas.DataFrame object.</span>
+
+<span class="sd">    This class provides friendly methods for performing routine actions like dropping</span>
+<span class="sd">    NAs, adding columns, casting columns to another variable type, or discovering</span>
+<span class="sd">    unique values in a column. It aims to provide a more pandas-like experience to the</span>
+<span class="sd">    PySpark DataFrame object.</span>
+
+<span class="sd">    Class Attributes</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    typedict : dict.</span>
+<span class="sd">        A dictionary of valid dtypes, for use when casting. This is relevant for</span>
+<span class="sd">        `Manatee.quick_cast` and `Manatee.add_column`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise the Manatee dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : a PySpark or Manatee dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">_jdf</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Manatee.drop_first"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.drop_first">[docs]</a>    <span class="k">def</span> <span class="nf">drop_first</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drop the first n rows of the dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n : int.</span>
+<span class="sd">            The number of rows to drop.</span>
+<span class="sd">        inplace : bool.</span>
+<span class="sd">            If False, this method returns a new Manatee dataframe.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Add an index to the data, and remove rows where the index is less than n</span>
+        <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">zipWithIndex</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.drop_last"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.drop_last">[docs]</a>    <span class="k">def</span> <span class="nf">drop_last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drop the last n rows of the dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        n : int.</span>
+<span class="sd">            The number of rows to drop.</span>
+<span class="sd">        inplace : bool.</span>
+<span class="sd">            If False, this method returns a new Manatee dataframe.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Total rows in the dataframe</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">()</span>
+
+        <span class="c1"># Add an index to the data, and remove rows where the index is greater than rows - n</span>
+        <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">zipWithIndex</span><span class="p">()</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">rows</span> <span class="o">-</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.unique"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.unique">[docs]</a>    <span class="k">def</span> <span class="nf">unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Find the unique values of a column in the dataframe.</span>
+
+<span class="sd">        This method returns the various unique values in a column or in the entire</span>
+<span class="sd">        dataframe, and the number of rows with that value. If no column is passed,</span>
+<span class="sd">        this returns a dictionary, mapping column names to unique values in each column.</span>
+<span class="sd">        This option might be slow.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        columns : str, list, or None.</span>
+<span class="sd">            The names of columns in which to find unique values.</span>
+<span class="sd">            If columns is a string, it is the name of the column in which to find unique values.</span>
+<span class="sd">            If columns is a list, its elements are assumed to be column names.</span>
+<span class="sd">            If columns is None, unique values are found from across the entire dataframe,</span>
+<span class="sd">            on a per-column basis.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        unique_values : dict.</span>
+<span class="sd">            A dictionary whose keys are column names, and values are the unique values, and their</span>
+<span class="sd">            counts, in that column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Format columns into a list of column names</span>
+        <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">column</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">}</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.quick_cast"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.quick_cast">[docs]</a>    <span class="k">def</span> <span class="nf">quick_cast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Attempts to cast a column to a given variable dtype.</span>
+
+<span class="sd">        Unlike the PySpark DataFrame `cast` method, `quick_cast` doesn&#39;t return a column</span>
+<span class="sd">        separately, but rather casts a column inside the dataframe, keeping the column&#39;s</span>
+<span class="sd">        name but changing the dtype of its elements. If it fails, this call &quot;fails gracefully&quot; :</span>
+<span class="sd">        the dataframe is unchanged and Spark issues lots of text.</span>
+<span class="sd">        I&#39;m not sure how to catch these exceptions yet...</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str.</span>
+<span class="sd">            The name of the column whose elements are to be cast.</span>
+<span class="sd">        dtype : type.</span>
+<span class="sd">            The type of variable to cast to. Valid entries are the keys in the dictionary</span>
+<span class="sd">            `Manatee.typedict`.</span>
+<span class="sd">        inplace : bool.</span>
+<span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this method returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Cast the column to the desired dtype</span>
+        <span class="n">cast_column</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typedict</span><span class="p">[</span><span class="n">dtype</span><span class="p">]())</span>
+
+        <span class="c1"># Add it to the DF</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="s2">&quot;x__&quot;</span><span class="p">,</span> <span class="n">cast_column</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">column</span><span class="p">)</span><span class="o">.</span><span class="n">withColumnRenamed</span><span class="p">(</span><span class="s2">&quot;x__&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.concatenate"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.concatenate">[docs]</a>    <span class="k">def</span> <span class="nf">concatenate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Concatenates a dataframe, a RDD, or a scalar column to the current dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : scalar, RDD, PySpark DataFrame, or Manatee DataFrame.</span>
+<span class="sd">            If dataframe, this glues the two dataframes together columnwise. They must have the</span>
+<span class="sd">            same length, and column names must be unique.</span>
+<span class="sd">            If RDD, it must be able to generate a Manatee DataFrame using `Manatee.from_rdd()`.</span>
+<span class="sd">            If scalar, `data` must be either a int, a float, or a str. The scalar will be</span>
+<span class="sd">            broadcast such that all elements in the new column have the value `data`.</span>
+<span class="sd">        inplace : bool.</span>
+<span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
+<span class="sd">            If True, the current DataFrame is mutated in-place, and this method returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If we have a dataframe, we can easily grab the schema then extract the RDD</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">Manatee</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">)):</span>
+            <span class="n">right_schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;Manatee_idx&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">(),</span> <span class="bp">False</span><span class="p">)]</span> <span class="o">+</span>
+                                     <span class="n">data</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">rdd</span>
+
+        <span class="c1"># Otherwise, we need to infer the schema</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">RDD</span><span class="p">):</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="n">colname</span> <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+            <span class="n">right_schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;Manatee_idx&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">(),</span> <span class="bp">False</span><span class="p">)]</span> <span class="o">+</span>
+                <span class="p">[</span><span class="n">StructField</span><span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">typedict</span><span class="p">[</span><span class="n">coltype</span><span class="p">]())</span>
+                <span class="k">for</span> <span class="n">colname</span><span class="p">,</span> <span class="n">coltype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)])</span>
+
+        <span class="c1"># Otherwise, it&#39;s a scalar</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+            <span class="c1">#rdd = sc.parallelize([data] * self.count())</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="c1"># Create new schema for the current dataframe</span>
+        <span class="n">left_schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span><span class="n">StructField</span><span class="p">(</span><span class="s2">&quot;Manatee_idx&quot;</span><span class="p">,</span> <span class="n">LongType</span><span class="p">(),</span> <span class="bp">False</span><span class="p">)]</span> <span class="o">+</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span>
+
+        <span class="c1"># Add indices, then cast to dataframes</span>
+        <span class="c1">#left = self.rdd.zipWithIndex().map(lambda (row, idx): {k: v for k, v in row.asDict().items() + [(&quot;Manatee_idx&quot;, idx)]}).toDF(left_schema)</span>
+        <span class="c1">#right = data.zipWithIndex().map(lambda (row, idx): {k: v for k, v in row.asDict().items() + [(&quot;Manatee_idx&quot;, idx)]}).toDF(right_schema)</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">zipWithIndex</span><span class="p">()</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="p">[(</span><span class="s2">&quot;Manatee_idx&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)]})</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">left_schema</span><span class="p">)</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">zipWithIndex</span><span class="p">()</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">row</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">row</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="o">+</span> <span class="p">[(</span><span class="s2">&quot;Manatee_idx&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="p">)]})</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">right_schema</span><span class="p">)</span>
+
+        <span class="c1"># Join</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="s2">&quot;Manatee_idx&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;Manatee_idx&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.dropna"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.dropna">[docs]</a>    <span class="k">def</span> <span class="nf">dropna</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;any&quot;</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drops rows containing NA or any of the values in na, such as ``na=[&quot;&quot;, &quot;NULL&quot;]``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        how : str.</span>
+<span class="sd">            If &quot;any&quot;, drop rows that contain at least one NA element.</span>
+<span class="sd">            If &quot;all&quot;, drops rows only if all of their elements are NA.</span>
+<span class="sd">        na : list or None.</span>
+<span class="sd">            If None, only empty elements are considered NA. Otherwise, all elements in this</span>
+<span class="sd">            list are also considered NA elements. You might want ``na = [&quot;&quot;, &quot;NULL&quot;]`` to remove</span>
+<span class="sd">            any rows containing empty elements, empty strings, and the string &quot;NULL&quot;.</span>
+<span class="sd">        subset : str, list, or None.</span>
+<span class="sd">            If None, the entire dataframe is considered when looking for NA values.</span>
+<span class="sd">            Otherwise, only the columns whose names are given in this argument are considered.</span>
+<span class="sd">        inplace : bool.</span>
+<span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this method returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Define the set of NA values</span>
+        <span class="k">if</span> <span class="n">na</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">na</span> <span class="o">=</span> <span class="p">{</span><span class="bp">None</span><span class="p">}</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">na</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+            <span class="n">na</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">na</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="bp">None</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">na</span> <span class="o">=</span> <span class="p">{</span><span class="n">na</span><span class="p">,</span> <span class="bp">None</span><span class="p">}</span>
+
+        <span class="c1"># Insert the subset into a list if it&#39;s passed as a string</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="p">[</span><span class="n">subset</span><span class="p">]</span>
+
+        <span class="c1"># If we&#39;re dropping rows containing at least one NA</span>
+        <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;any&quot;</span><span class="p">:</span>
+
+            <span class="c1"># If we&#39;re looking across the full dataframe</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
+                <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">na</span><span class="p">))</span>
+
+            <span class="c1"># If we&#39;re looking at specific columns</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="p">({</span><span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                                      <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">}</span> <span class="o">&amp;</span> <span class="n">na</span><span class="p">))</span>
+
+        <span class="c1"># Otherwise, we&#39;re only dropping rows if all entries are NA</span>
+        <span class="k">elif</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+
+            <span class="c1"># If strictly all subset column entries must be NA</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">subset</span><span class="p">:</span>
+                <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">na</span><span class="p">))</span>
+
+            <span class="c1"># If we&#39;re looking at specific columns</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rdd</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="ow">not</span> <span class="p">({</span><span class="n">val</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                                                      <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">na</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">schema</span><span class="p">))</span>
+
+</div>
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Manatee.from_rdd"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.from_rdd">[docs]</a>    <span class="k">def</span> <span class="nf">from_rdd</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">rdd</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a Manatee DataFrame from an RDD.</span>
+
+<span class="sd">        This method returns a Manatee DataFrame from data in a resilient distributed dataset.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        rdd : pyspark.rdd.RDD.</span>
+<span class="sd">            The RDD to be turned into a dataframe. Elements of the RDD can either be</span>
+<span class="sd">            single non-container items ( like a float or str ), a tuple of such elements,</span>
+<span class="sd">            or a `pyspark.sql.types.Row` object.</span>
+<span class="sd">        name : str or list.</span>
+<span class="sd">            The desired name(s) of the column(s), if the RDD&#39;s elements are not `Row` objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Grab the first row in the RDD, to figure out dtypes.</span>
+        <span class="n">first</span> <span class="o">=</span> <span class="n">rdd</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+
+        <span class="c1"># For non-Row RDD entries, find the dtypes assuming they&#39;re consistent throughout</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="n">Row</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">first</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>  <span class="c1"># multiple elements per RDD row</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">first</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">first</span><span class="p">)]</span>  <span class="c1"># one element per RDD row</span>
+
+            <span class="c1"># Also generate some names if they aren&#39;t passed</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;col_from_rdd_{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">first</span><span class="p">))]</span>
+
+        <span class="c1"># For Row RDD entries, map the first row to a dict to get dtypes and column names</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">first</span><span class="o">.</span><span class="n">asDict</span><span class="p">()</span>
+            <span class="n">dtype</span> <span class="o">=</span> <span class="p">[</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="p">[</span><span class="n">colname</span> <span class="k">for</span> <span class="n">colname</span> <span class="ow">in</span> <span class="n">first</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+
+        <span class="c1"># Create schema</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">StructType</span><span class="p">([</span>
+            <span class="n">StructField</span><span class="p">(</span><span class="n">colname</span><span class="p">,</span> <span class="n">cls</span><span class="o">.</span><span class="n">typedict</span><span class="p">[</span><span class="n">coltype</span><span class="p">]())</span>
+            <span class="k">for</span> <span class="n">colname</span><span class="p">,</span> <span class="n">coltype</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">dtype</span><span class="p">)</span>
+        <span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="n">rdd</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">))</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.transpose"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.transpose">[docs]</a>    <span class="k">def</span> <span class="nf">transpose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs a transpose of the underlying RDD.</span>
+
+<span class="sd">        This method is not yet fully implemented; it currently works in-memory only</span>
+<span class="sd">        by leveraging ``pandas.DataFrame.transpose()``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        memory : bool.</span>
+<span class="sd">            If True, the transpose is done in-memory.</span>
+<span class="sd">            If False, the transpose is performed in a distributed fashion. At least</span>
+<span class="sd">            one row of the dataframe must fit into memory.</span>
+<span class="sd">        inplace : bool.</span>
+<span class="sd">            If False, this method returns a new Manatee dataframe.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># For in-memory transpose, just go through pandas</span>
+        <span class="k">if</span> <span class="n">memory</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">sql_ctx</span><span class="o">.</span><span class="n">createDataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">toPandas</span><span class="p">()</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="c1"># Otherwise, take the RDD row by row, turning them into columns</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        def rddTranspose(rdd):</span>
+<span class="sd">            rddT1 = self.rdd.zipWithIndex().flatMap(lambda (x,i): [(i,j,e) for (j,e) in enumerate(x)])</span>
+<span class="sd">            rddT2 = rddT1.map(lambda (i,j,e): (j, (i,e))).groupByKey().sortByKey()</span>
+<span class="sd">            rddT3 = rddT2.map(lambda (i, x): sorted(list(x), cmp=lambda (i1,e1),(i2,e2) : cmp(i1, i2)))</span>
+<span class="sd">            rddT4 = rddT3.map(lambda x: map(lambda (i, y): y , x))</span>
+<span class="sd">            return rddT4.map(lambda x: np.asarray(x))</span>
+<span class="sd">        # http://www.dotnetperls.com/lambda-python</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO : finish this method</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">T</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Transposes the dataframe&#39;s index and columns in-memory.</span>
+
+<span class="sd">        This calls ``df.transpose(memory=True, inplace=False)`` to quickly transpose the</span>
+<span class="sd">        RDD, assuming the whole thing can fit into memory. For a transpose that only loads</span>
+<span class="sd">        one row into memory at once, use ``Manatee.transpose()`` with ``memory=False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">memory</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Manatee.to_null"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.to_null">[docs]</a>    <span class="k">def</span> <span class="nf">to_null</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_replace</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Replaces a set of values with `None`.</span>
+
+<span class="sd">        This method replaces a set of values with `None`, which is helpful if your</span>
+<span class="sd">        dataframe has a number of different values that should be null, such as</span>
+<span class="sd">        empty strings, whitespace, or the string &quot;NULL&quot;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        to_replace : scalar or list.</span>
+<span class="sd">            The value, or list of values, to replace with `None`.</span>
+<span class="sd">        subset : str, list, or None.</span>
+<span class="sd">            If None, the entire dataframe is considered when looking for to_replace values.</span>
+<span class="sd">            Otherwise, only the columns whose names are given in this argument are considered.</span>
+<span class="sd">        inplace : bool.</span>
+<span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this method returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Ensure subset is a list of columns</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="p">[</span><span class="n">subset</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">subset</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">subset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+
+        <span class="c1"># Replace a value if it&#39;s equal to, or contained in, to_replace</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_replace</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">replace</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="n">to_replace</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">replace</span> <span class="o">=</span> <span class="n">udf</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">to_replace</span> <span class="k">else</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="c1"># Initialise a new dataframe</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">Manatee</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># Replace all matching entries in the relevant columns with None</span>
+        <span class="c1"># TODO : use new .apply() ?!</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.na_rate"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.na_rate">[docs]</a>    <span class="k">def</span> <span class="nf">na_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">na</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">subset</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the fraction of NA elements per column. Not yet implemented.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Define the set of NA values</span>
+        <span class="k">if</span> <span class="n">na</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">na</span> <span class="o">=</span> <span class="p">{</span><span class="n">na</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">na</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">na</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">({</span><span class="bp">None</span><span class="p">})</span>
+
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">())</span>
+
+        <span class="n">nulls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">na</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">x</span><span class="p">])</span><span class="o">.</span><span class="n">toDF</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">schema</span><span class="p">)</span>
+        <span class="c1"># TODO</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+</div>
+    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="c1"># TODO</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">subset</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">withColumn</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">replace</span><span class="p">(</span><span class="n">col</span><span class="p">))</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
+<div class="viewcode-block" id="Manatee.drop"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.drop">[docs]</a>    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a new dataframe that drops the specified column.</span>
+
+<span class="sd">        This function extends PySpark&#39;s DataFrame.drop() by allowing `column` to be</span>
+<span class="sd">        a list or tuple. In this case, all columns in the list or tuple are dropped.</span>
+<span class="sd">        This function can also be run in-place.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        column : str, list, or tuple.</span>
+<span class="sd">            If str, drops the column named in `column`.</span>
+<span class="sd">            If list of str or tuple of str, drops all columns named in `column`.</span>
+<span class="sd">        inplace : bool.</span>
+<span class="sd">            If False, this method returns a new Manatee DataFrame.</span>
+<span class="sd">            If True, the current dataframe is mutated in-place, and this method returns nothing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If a string is passed, just drop that column</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="c1"># If a tuple or list is passed, drop them all</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span>
+            <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.toPySparkDF"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.toPySparkDF">[docs]</a>    <span class="k">def</span> <span class="nf">toPySparkDF</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a PySpark DataFrame object.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        df : pyspark.sql.dataframe.DataFrame.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_jdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sql_ctx</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Manatee.map_concat"><a class="viewcode-back" href="../../manatee.html#manatee.manatee.Manatee.map_concat">[docs]</a>    <span class="k">def</span> <span class="nf">map_concat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Performs a map() followed by a concatenate() in-place.</span>
+
+<span class="sd">        Concatenates the RDD that results from a map() operation as a new column in the dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rdd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">rdd</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+
+    <span class="c1"># Function overloads</span>
+</div>
+    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">drop_duplicates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">agg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Should somehow overload groupby() too... TODO.</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">limit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Manatee</span><span class="p">(</span><span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+
+
+    <span class="c1"># Dictionary for casting columns</span>
+    <span class="n">typedict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="nb">int</span><span class="p">:</span> <span class="n">IntegerType</span><span class="p">,</span>
+        <span class="nb">bool</span><span class="p">:</span> <span class="n">BooleanType</span><span class="p">,</span>
+        <span class="nb">float</span><span class="p">:</span> <span class="n">FloatType</span><span class="p">,</span>
+        <span class="n">date</span><span class="p">:</span> <span class="n">DateType</span><span class="p">,</span>
+        <span class="nb">str</span><span class="p">:</span> <span class="n">StringType</span><span class="p">,</span>
+        <span class="n">datetime</span><span class="p">:</span> <span class="n">TimestampType</span><span class="p">,</span>
+        <span class="bp">None</span><span class="p">:</span> <span class="n">NullType</span><span class="p">()</span>
+    <span class="p">}</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Quentin CAUDRON.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.22',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

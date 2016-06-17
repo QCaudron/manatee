@@ -138,6 +138,339 @@
   <div class="section" id="manatee">
 <h1>manatee<a class="headerlink" href="#manatee" title="Permalink to this headline">¶</a></h1>
 <p>This module contains a single class, <cite>Manatee</cite>, which inherits from <cite>pyspark.sql.dataframe.DataFrame</cite>. It provides some routine data-wrangling methods while still exposing the full functionality of the PySpark DataFrame. These are described here.</p>
+<span class="target" id="module-manatee.manatee"></span><span class="target" id="module-manatee"></span><dl class="class">
+<dt id="manatee.manatee.Manatee">
+<em class="property">class </em><code class="descclassname">manatee.manatee.</code><code class="descname">Manatee</code><span class="sig-paren">(</span><em>df=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper class around the PySpark DataFrame object, providing some usability features
+closer to the pandas.DataFrame object.</p>
+<p>This class provides friendly methods for performing routine actions like dropping
+NAs, adding columns, casting columns to another variable type, or discovering
+unique values in a column. It aims to provide a more pandas-like experience to the
+PySpark DataFrame object.</p>
+<p class="rubric">Attributes</p>
+<p class="rubric">Methods</p>
+<dl class="attribute">
+<dt id="manatee.manatee.Manatee.T">
+<code class="descname">T</code><a class="headerlink" href="#manatee.manatee.Manatee.T" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transposes the dataframe&#8217;s index and columns in-memory.</p>
+<p>This calls <code class="docutils literal"><span class="pre">df.transpose(memory=True,</span> <span class="pre">inplace=False)</span></code> to quickly transpose the
+RDD, assuming the whole thing can fit into memory. For a transpose that only loads
+one row into memory at once, use <code class="docutils literal"><span class="pre">Manatee.transpose()</span></code> with <code class="docutils literal"><span class="pre">memory=False</span></code>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.concatenate">
+<code class="descname">concatenate</code><span class="sig-paren">(</span><em>data</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.concatenate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.concatenate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Concatenates a dataframe, a RDD, or a scalar column to the current dataframe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : scalar, RDD, PySpark DataFrame, or Manatee DataFrame.</p>
+<blockquote>
+<div><p>If dataframe, this glues the two dataframes together columnwise. They must have the
+same length, and column names must be unique.
+If RDD, it must be able to generate a Manatee DataFrame using <cite>Manatee.from_rdd()</cite>.
+If scalar, <cite>data</cite> must be either a int, a float, or a str. The scalar will be
+broadcast such that all elements in the new column have the value <cite>data</cite>.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee DataFrame.
+If True, the current DataFrame is mutated in-place, and this method returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.drop">
+<code class="descname">drop</code><span class="sig-paren">(</span><em>columns</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.drop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.drop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a new dataframe that drops the specified column.</p>
+<p>This function extends PySpark&#8217;s DataFrame.drop() by allowing <cite>column</cite> to be
+a list or tuple. In this case, all columns in the list or tuple are dropped.
+This function can also be run in-place.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>column</strong> : str, list, or tuple.</p>
+<blockquote>
+<div><p>If str, drops the column named in <cite>column</cite>.
+If list of str or tuple of str, drops all columns named in <cite>column</cite>.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee DataFrame.
+If True, the current dataframe is mutated in-place, and this method returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.drop_first">
+<code class="descname">drop_first</code><span class="sig-paren">(</span><em>n=1</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.drop_first"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.drop_first" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop the first n rows of the dataframe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int.</p>
+<blockquote>
+<div><p>The number of rows to drop.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee dataframe.
+If True, the current dataframe is mutated in-place, and this returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.drop_last">
+<code class="descname">drop_last</code><span class="sig-paren">(</span><em>n=1</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.drop_last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.drop_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop the last n rows of the dataframe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>n</strong> : int.</p>
+<blockquote>
+<div><p>The number of rows to drop.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee dataframe.
+If True, the current dataframe is mutated in-place, and this returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.dropna">
+<code class="descname">dropna</code><span class="sig-paren">(</span><em>how='any'</em>, <em>na=None</em>, <em>subset=None</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.dropna"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.dropna" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drops rows containing NA or any of the values in na, such as <code class="docutils literal"><span class="pre">na=[&quot;&quot;,</span> <span class="pre">&quot;NULL&quot;]</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>how</strong> : str.</p>
+<blockquote>
+<div><p>If &#8220;any&#8221;, drop rows that contain at least one NA element.
+If &#8220;all&#8221;, drops rows only if all of their elements are NA.</p>
+</div></blockquote>
+<p><strong>na</strong> : list or None.</p>
+<blockquote>
+<div><p>If None, only empty elements are considered NA. Otherwise, all elements in this
+list are also considered NA elements. You might want <code class="docutils literal"><span class="pre">na</span> <span class="pre">=</span> <span class="pre">[&quot;&quot;,</span> <span class="pre">&quot;NULL&quot;]</span></code> to remove
+any rows containing empty elements, empty strings, and the string &#8220;NULL&#8221;.</p>
+</div></blockquote>
+<p><strong>subset</strong> : str, list, or None.</p>
+<blockquote>
+<div><p>If None, the entire dataframe is considered when looking for NA values.
+Otherwise, only the columns whose names are given in this argument are considered.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee DataFrame.
+If True, the current dataframe is mutated in-place, and this method returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="manatee.manatee.Manatee.from_rdd">
+<em class="property">classmethod </em><code class="descname">from_rdd</code><span class="sig-paren">(</span><em>rdd</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.from_rdd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.from_rdd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Manatee DataFrame from an RDD.</p>
+<p>This method returns a Manatee DataFrame from data in a resilient distributed dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>rdd</strong> : pyspark.rdd.RDD.</p>
+<blockquote>
+<div><p>The RDD to be turned into a dataframe. Elements of the RDD can either be
+single non-container items ( like a float or str ), a tuple of such elements,
+or a <cite>pyspark.sql.types.Row</cite> object.</p>
+</div></blockquote>
+<p><strong>name</strong> : str or list.</p>
+<blockquote class="last">
+<div><p>The desired name(s) of the column(s), if the RDD&#8217;s elements are not <cite>Row</cite> objects.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.map_concat">
+<code class="descname">map_concat</code><span class="sig-paren">(</span><em>f</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.map_concat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.map_concat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a map() followed by a concatenate() in-place.</p>
+<p>Concatenates the RDD that results from a map() operation as a new column in the dataframe.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.na_rate">
+<code class="descname">na_rate</code><span class="sig-paren">(</span><em>na=None</em>, <em>subset=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.na_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.na_rate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the fraction of NA elements per column. Not yet implemented.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.quick_cast">
+<code class="descname">quick_cast</code><span class="sig-paren">(</span><em>column</em>, <em>dtype</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.quick_cast"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.quick_cast" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attempts to cast a column to a given variable dtype.</p>
+<p>Unlike the PySpark DataFrame <cite>cast</cite> method, <cite>quick_cast</cite> doesn&#8217;t return a column
+separately, but rather casts a column inside the dataframe, keeping the column&#8217;s
+name but changing the dtype of its elements. If it fails, this call &#8220;fails gracefully&#8221; :
+the dataframe is unchanged and Spark issues lots of text.
+I&#8217;m not sure how to catch these exceptions yet...</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>column</strong> : str.</p>
+<blockquote>
+<div><p>The name of the column whose elements are to be cast.</p>
+</div></blockquote>
+<p><strong>dtype</strong> : type.</p>
+<blockquote>
+<div><p>The type of variable to cast to. Valid entries are the keys in the dictionary
+<cite>Manatee.typedict</cite>.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee DataFrame.
+If True, the current dataframe is mutated in-place, and this method returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.toPySparkDF">
+<code class="descname">toPySparkDF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.toPySparkDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.toPySparkDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a PySpark DataFrame object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>df</strong> : pyspark.sql.dataframe.DataFrame.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.to_null">
+<code class="descname">to_null</code><span class="sig-paren">(</span><em>to_replace</em>, <em>subset=None</em>, <em>inplace=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.to_null"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.to_null" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replaces a set of values with <cite>None</cite>.</p>
+<p>This method replaces a set of values with <cite>None</cite>, which is helpful if your
+dataframe has a number of different values that should be null, such as
+empty strings, whitespace, or the string &#8220;NULL&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>to_replace</strong> : scalar or list.</p>
+<blockquote>
+<div><p>The value, or list of values, to replace with <cite>None</cite>.</p>
+</div></blockquote>
+<p><strong>subset</strong> : str, list, or None.</p>
+<blockquote>
+<div><p>If None, the entire dataframe is considered when looking for to_replace values.
+Otherwise, only the columns whose names are given in this argument are considered.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee DataFrame.
+If True, the current dataframe is mutated in-place, and this method returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.transpose">
+<code class="descname">transpose</code><span class="sig-paren">(</span><em>memory=False</em>, <em>inplace=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.transpose"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.transpose" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs a transpose of the underlying RDD.</p>
+<p>This method is not yet fully implemented; it currently works in-memory only
+by leveraging <code class="docutils literal"><span class="pre">pandas.DataFrame.transpose()</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>memory</strong> : bool.</p>
+<blockquote>
+<div><p>If True, the transpose is done in-memory.
+If False, the transpose is performed in a distributed fashion. At least
+one row of the dataframe must fit into memory.</p>
+</div></blockquote>
+<p><strong>inplace</strong> : bool.</p>
+<blockquote class="last">
+<div><p>If False, this method returns a new Manatee dataframe.
+If True, the current dataframe is mutated in-place, and this returns nothing.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="manatee.manatee.Manatee.unique">
+<code class="descname">unique</code><span class="sig-paren">(</span><em>columns=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/manatee/manatee.html#Manatee.unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#manatee.manatee.Manatee.unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the unique values of a column in the dataframe.</p>
+<p>This method returns the various unique values in a column or in the entire
+dataframe, and the number of rows with that value. If no column is passed,
+this returns a dictionary, mapping column names to unique values in each column.
+This option might be slow.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>columns</strong> : str, list, or None.</p>
+<blockquote>
+<div><p>The names of columns in which to find unique values.
+If columns is a string, it is the name of the column in which to find unique values.
+If columns is a list, its elements are assumed to be column names.
+If columns is None, unique values are found from across the entire dataframe,
+on a per-column basis.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>unique_values</strong> : dict.</p>
+<blockquote class="last">
+<div><p>A dictionary whose keys are column names, and values are the unique values, and their
+counts, in that column.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
